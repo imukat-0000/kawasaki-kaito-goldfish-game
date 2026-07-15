@@ -150,6 +150,7 @@ function render(data) {
   elements.stage.textContent = String(stage).padStart(2, "0");
   const background = BACKGROUNDS[Math.min(stage, BACKGROUNDS.length - 1)];
   elements.scene.src = background;
+  elements.gameScreen.dataset.stage = String(stage);
   elements.gameScreen.style.setProperty("--scene-image", `url("${background}")`);
 
   elements.progressLabel.textContent = progress.nextMilestone
