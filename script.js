@@ -4,16 +4,29 @@
  */
 const API_URL = "https://script.google.com/macros/s/AKfycbwJKRyeAw9jiC-jmvJ2fIgRdmdHpu1CVCu61cEC9OojBjMtszdU4fdj99eBIPz0ogwh/exec";
 
-const FISH_PER_ACCESS = 10;
-const CELEBRATION_INTERVAL = 100;
-const LEVEL_THRESHOLDS = [0, 100, 300, 500];
+const MILESTONES = [100, 500, 1000, 10000, 100000, 1000000];
 const BACKGROUNDS = [
   "assets/tub_base.png",
   "assets/tub_levelup1.png",
   "assets/tub_levelup2.png",
-  "assets/tub_levelup3.png"
+  "assets/tub_levelup3.png",
+  "assets/tub_levelup4.png",
+  "assets/tub_levelup5.png",
+  "assets/tub_levelup6.png"
 ];
-const MAX_VISIBLE_FISH = 64;
+const GOLDFISH_SPRITES = [
+  "assets/goldfish_sprite.png",
+  "assets/goldfish_black.png",
+  "assets/demekin_red.png",
+  "assets/demekin_black.png",
+  "assets/demekin_gold.png"
+];
+const KOI_SPRITES = [
+  "assets/koi_sprite.png",
+  "assets/koi_sanke.png",
+  "assets/koi_gold.png"
+];
+const MAX_VISIBLE_FISH = 72;
 
 const elements = {
   scene: document.querySelector("#scene"),
@@ -48,24 +61,21 @@ function getValidSource() {
 }
 
 function getStage(total) {
-  let stage = 0;
-  LEVEL_THRESHOLDS.forEach((threshold, index) => {
-    if (total >= threshold) stage = index;
-  });
-  return stage;
-}
-
-function getNextMilestone(total) {
-  return (Math.floor(total / CELEBRATION_INTERVAL) + 1) * CELEBRATION_INTERVAL;
+  return MILESTONES.filter((milestone) => total >= milestone).length;
 }
 
 function getProgress(total) {
-  const currentMilestone = Math.floor(total / CELEBRATION_INTERVAL) * CELEBRATION_INTERVAL;
-  const nextMilestone = currentMilestone + CELEBRATION_INTERVAL;
-  const withinStage = total - currentMilestone;
+  const stage = getStage(total);
+  const previousMilestone = stage === 0 ? 0 : MILESTONES[stage - 1];
+  const nextMilestone = MILESTONES[stage] || null;
+
+  if (!nextMilestone) {
+    return { percent: 100, previousMilestone, nextMilestone: null };
+  }
+
   return {
-    percent: (withinStage / CELEBRATION_INTERVAL) * 100,
-    currentMilestone,
+    percent: ((total - previousMilestone) / (nextMilestone - previousMilestone)) * 100,
+    previousMilestone,
     nextMilestone
   };
 }
@@ -78,22 +88,48 @@ function seededPosition(index) {
   return { x, y };
 }
 
+function seededRandom(seed) {
+  const value = Math.sin(seed * 12.9898 + 78.233) * 43758.5453;
+  return value - Math.floor(value);
+}
+
+function pickSprite(sprites, seed) {
+  return sprites[Math.floor(seededRandom(seed) * sprites.length)];
+}
+
 function renderFish(total) {
-  const count = Math.min(Math.floor(total / FISH_PER_ACCESS), MAX_VISIBLE_FISH);
+  const count = Math.min(Math.max(Math.floor(total), 0), MAX_VISIBLE_FISH);
+  const koiProbability = total >= 1000
+    ? Math.min(0.34, 0.12 + Math.log10(total / 1000) * 0.055)
+    : 0;
   const fragment = document.createDocumentFragment();
   elements.fishPond.replaceChildren();
+  elements.fishPond.dataset.density = count <= 12
+    ? "sparse"
+    : count <= 36
+      ? "medium"
+      : "dense";
 
   for (let index = 0; index < count; index += 1) {
     const fish = document.createElement("img");
     const { x, y } = seededPosition(index);
-    fish.className = "goldfish";
-    fish.src = "assets/goldfish_sprite.png";
+    const typeRoll = seededRandom(total * 0.17 + index * 19.73);
+    let isKoi = total >= 1000 && typeRoll < koiProbability;
+
+    if (total >= 1000 && count >= 2) {
+      if (index === 0) isKoi = false;
+      if (index === 1) isKoi = true;
+    }
+
+    const sprites = isKoi ? KOI_SPRITES : GOLDFISH_SPRITES;
+    fish.className = `goldfish${isKoi ? " is-koi" : ""}`;
+    fish.src = pickSprite(sprites, total * 0.31 + index * 31.17);
     fish.alt = "";
     fish.style.left = `${x}%`;
     fish.style.top = `${y}%`;
-    fish.style.setProperty("--duration", `${1.5 + (index % 5) * 0.3}s`);
+    fish.style.setProperty("--duration", `${(isKoi ? 2.4 : 1.5) + (index % 5) * 0.3}s`);
     fish.style.setProperty("--delay", `${-(index % 7) * 0.27}s`);
-    fish.style.transform = `translate(-50%, -50%) scaleX(${index % 3 === 0 ? -1 : 1})`;
+    fish.style.transform = `translate(-50%, -50%) scaleX(${seededRandom(total + index * 7.7) < 0.38 ? -1 : 1})`;
     fragment.appendChild(fish);
   }
 
@@ -110,33 +146,53 @@ function render(data) {
   elements.total.textContent = total.toLocaleString("ja-JP");
   elements.qr.textContent = qr.toLocaleString("ja-JP");
   elements.sns.textContent = sns.toLocaleString("ja-JP");
-  elements.stage.textContent = String(stage + 1).padStart(2, "0");
+  elements.stage.textContent = String(stage).padStart(2, "0");
   elements.scene.src = BACKGROUNDS[Math.min(stage, BACKGROUNDS.length - 1)];
-  elements.progressLabel.textContent = `${total - progress.currentMilestone} / ${CELEBRATION_INTERVAL}`;
+
+  elements.progressLabel.textContent = progress.nextMilestone
+    ? `${total.toLocaleString("ja-JP")} / ${progress.nextMilestone.toLocaleString("ja-JP")}`
+    : `MAX ${MILESTONES[MILESTONES.length - 1].toLocaleString("ja-JP")}`;
   elements.progressFill.style.width = `${progress.percent}%`;
   elements.progressTrack.setAttribute("aria-valuenow", String(Math.round(progress.percent)));
-  elements.progressTrack.setAttribute("aria-valuetext", `次の${progress.nextMilestone}アクセスまで${progress.nextMilestone - total}件`);
+  elements.progressTrack.setAttribute(
+    "aria-valuetext",
+    progress.nextMilestone
+      ? `次の${progress.nextMilestone}匹まで${progress.nextMilestone - total}匹`
+      : "最高段階に到達"
+  );
   renderFish(total);
 }
 
 function maybeCelebrate(total) {
-  const reachedMilestone = Math.floor(total / CELEBRATION_INTERVAL) * CELEBRATION_INTERVAL;
-  if (reachedMilestone < CELEBRATION_INTERVAL) return;
+  const reachedMilestone = [...MILESTONES].reverse().find((milestone) => total >= milestone);
+  if (!reachedMilestone) return;
 
   const storageKey = `celebration_shown_${reachedMilestone}`;
   if (localStorage.getItem(storageKey)) return;
 
   localStorage.setItem(storageKey, "1");
-  elements.milestoneLabel.textContent = `${reachedMilestone} ACCESS!`;
+  elements.milestoneLabel.textContent = `${reachedMilestone.toLocaleString("ja-JP")} FISH!`;
   elements.celebration.classList.remove("is-playing");
   requestAnimationFrame(() => elements.celebration.classList.add("is-playing"));
   window.setTimeout(() => elements.celebration.classList.remove("is-playing"), 5200);
 }
 
 async function fetchCounter(source) {
+  const searchParams = new URLSearchParams(window.location.search);
+  const isLocalPreview = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+
+  if (isLocalPreview && searchParams.has("demo")) {
+    const demoTotal = Math.max(0, Number(searchParams.get("demo")) || 0);
+    return {
+      qr: Math.floor(demoTotal * 0.6),
+      sns: Math.ceil(demoTotal * 0.4),
+      total: demoTotal,
+      demo: true
+    };
+  }
+
   if (API_URL.includes("YOUR_APPS_SCRIPT")) {
-    const demoTotal = Number(new URLSearchParams(window.location.search).get("demo")) || 0;
-    return { qr: Math.floor(demoTotal * 0.6), sns: Math.ceil(demoTotal * 0.4), total: demoTotal, demo: true };
+    return { qr: 0, sns: 0, total: 0, demo: true };
   }
 
   const url = new URL(API_URL);

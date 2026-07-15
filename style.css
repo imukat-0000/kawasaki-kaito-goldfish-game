@@ -180,6 +180,24 @@ h1 {
   transform-origin: 50% 50%;
 }
 
+.fish-pond[data-density="sparse"] .goldfish {
+  width: clamp(36px, 11%, 88px);
+}
+
+.fish-pond[data-density="medium"] .goldfish {
+  width: clamp(30px, 7.8%, 70px);
+}
+
+.fish-pond[data-density="dense"] .goldfish {
+  width: clamp(24px, 5.2%, 52px);
+}
+
+.fish-pond .goldfish.is-koi {
+  z-index: 2;
+  width: clamp(42px, 10%, 96px);
+  filter: drop-shadow(3px 3px 0 rgba(7, 20, 12, 0.65));
+}
+
 @keyframes swim {
   0% { translate: -5px 0; rotate: -4deg; }
   50% { translate: 2px -3px; rotate: 3deg; }

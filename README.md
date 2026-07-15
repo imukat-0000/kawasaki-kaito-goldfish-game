@@ -26,16 +26,19 @@ https://example.github.io/project/?src=sns
 API未設定時は `?demo=値` で表示確認できます。
 
 ```text
-http://localhost:8000/?demo=120
-http://localhost:8000/?demo=320
-http://localhost:8000/?demo=520
+http://localhost:8000/?demo=100
+http://localhost:8000/?demo=1000
+http://localhost:8000/?demo=1000000
 ```
 
 ## カウントと演出
 
-- 10アクセスごとに金魚を1匹追加
-- 100アクセスごとに盆踊り演出を端末ごとに一度再生
-- 100 / 300 / 500アクセスで背景を3段階グレードアップ
+- 1アクセスごとに金魚を1匹追加
+- 朱色・黒の金魚、赤・黒・金のデメキンをランダム表示
+- 100 / 500 / 1,000 / 10,000 / 100,000 / 1,000,000匹で盆踊り演出を端末ごとに一度再生
+- 上記6つの節目ごとに背景をグレードアップ
+- 1,000匹以降は赤白・白赤黒・金の鯉と金魚をランダム表示
+- 大量到達時も軽く動くよう、桶内の代表表示は最大72体
 - QR経由とSNS経由の内訳をHUDに表示
 
-`FISH_PER_ACCESS`、`CELEBRATION_INTERVAL`、`LEVEL_THRESHOLDS` は `script.js` 冒頭で変更できます。
+節目は `script.js` 冒頭の `MILESTONES` で変更できます。
