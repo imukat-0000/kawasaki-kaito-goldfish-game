@@ -463,6 +463,10 @@ h1 {
   background: var(--red);
 }
 
+.status-message.is-stale {
+  background: var(--gold);
+}
+
 .campaign-footer {
   display: flex;
   align-items: center;
@@ -533,5 +537,10 @@ h1 {
   .progress-fill,
   .scene {
     transition: none;
+  }
+
+  .celebration.is-playing {
+    opacity: 1;
+    animation: none;
   }
 }

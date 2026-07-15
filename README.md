@@ -21,6 +21,8 @@ https://example.github.io/project/?src=sns
 
 同一端末・同一日・同一流入元からの加算は、`localStorage` の `YYYY-MM-DD_src` キーで1回に制限します。`src` が無いアクセスは現在値の取得のみです。
 
+カウンターAPIは10秒でタイムアウトします。最後に取得できた正常値は端末内に保存され、通信障害時は「前回の記録を表示しています」と明示して表示します。複数タブからの同時加算を抑えるため、日次キーはAPIリクエストの直前に確保します。
+
 ## ローカル確認
 
 API未設定時は `?demo=値` で表示確認できます。
@@ -29,6 +31,12 @@ API未設定時は `?demo=値` で表示確認できます。
 http://localhost:8000/?demo=100
 http://localhost:8000/?demo=1000
 http://localhost:8000/?demo=1000000
+```
+
+通信障害の回帰確認には `tests/browser-harness.html` を使用します。`mode` は `success`、`failure`、`failure-cache`、`invalid`、`timeout-cache`、`storage-error` に対応し、`reset=1` で試験用の保存値を初期化します。
+
+```text
+http://localhost:8000/tests/browser-harness.html?mode=failure-cache&reset=1
 ```
 
 ## カウントと演出

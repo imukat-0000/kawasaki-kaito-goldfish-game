@@ -27,6 +27,9 @@ const KOI_SPRITES = [
   "assets/koi_gold.png"
 ];
 const MAX_VISIBLE_FISH = 72;
+const REQUEST_TIMEOUT_MS = 10000;
+const COUNTER_CACHE_KEY = "counter_last_success";
+const fallbackStorage = new Map();
 
 const elements = {
   gameScreen: document.querySelector("#gameScreen"),
@@ -59,6 +62,61 @@ function getJstDateKey() {
 function getValidSource() {
   const value = new URLSearchParams(window.location.search).get("src");
   return value === "qr" || value === "sns" ? value : null;
+}
+
+function getStoredValue(key) {
+  try {
+    return localStorage.getItem(key);
+  } catch (error) {
+    return fallbackStorage.get(key) || null;
+  }
+}
+
+function setStoredValue(key, value) {
+  try {
+    localStorage.setItem(key, value);
+  } catch (error) {
+    fallbackStorage.set(key, value);
+  }
+}
+
+function hasStoredFlag(key) {
+  return getStoredValue(key) === "1";
+}
+
+function storeFlag(key) {
+  setStoredValue(key, "1");
+}
+
+function isLocalDemo() {
+  const isLocalPreview = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+  return isLocalPreview && new URLSearchParams(window.location.search).has("demo");
+}
+
+function normalizeCounterData(data) {
+  const values = [data?.qr, data?.sns, data?.total];
+  if (!values.every((value) => Number.isFinite(value) && value >= 0)) {
+    throw new Error("Counter API response is invalid");
+  }
+
+  const [qr, sns, total] = values.map(Math.floor);
+  if (total !== qr + sns) {
+    throw new Error("Counter API totals are inconsistent");
+  }
+  return { qr, sns, total };
+}
+
+function cacheCounter(data) {
+  setStoredValue(COUNTER_CACHE_KEY, JSON.stringify({ ...data, savedAt: Date.now() }));
+}
+
+function readCachedCounter() {
+  try {
+    const cached = JSON.parse(getStoredValue(COUNTER_CACHE_KEY));
+    return normalizeCounterData(cached);
+  } catch (error) {
+    return null;
+  }
 }
 
 function getStage(total) {
@@ -157,7 +215,8 @@ function render(data) {
     ? `${total.toLocaleString("ja-JP")} / ${progress.nextMilestone.toLocaleString("ja-JP")}`
     : `MAX ${MILESTONES[MILESTONES.length - 1].toLocaleString("ja-JP")}`;
   elements.progressFill.style.width = `${progress.percent}%`;
-  elements.progressTrack.setAttribute("aria-valuenow", String(Math.round(progress.percent)));
+  const accessiblePercent = Math.floor(progress.percent * 100) / 100;
+  elements.progressTrack.setAttribute("aria-valuenow", String(accessiblePercent));
   elements.progressTrack.setAttribute(
     "aria-valuetext",
     progress.nextMilestone
@@ -172,9 +231,9 @@ function maybeCelebrate(total) {
   if (!reachedMilestone) return;
 
   const storageKey = `celebration_shown_${reachedMilestone}`;
-  if (localStorage.getItem(storageKey)) return;
+  if (hasStoredFlag(storageKey)) return;
 
-  localStorage.setItem(storageKey, "1");
+  storeFlag(storageKey);
   elements.milestoneLabel.textContent = `${reachedMilestone.toLocaleString("ja-JP")} FISH!`;
   elements.celebration.classList.remove("is-playing");
   requestAnimationFrame(() => elements.celebration.classList.add("is-playing"));
@@ -183,10 +242,12 @@ function maybeCelebrate(total) {
 
 async function fetchCounter(source) {
   const searchParams = new URLSearchParams(window.location.search);
-  const isLocalPreview = ["localhost", "127.0.0.1"].includes(window.location.hostname);
 
-  if (isLocalPreview && searchParams.has("demo")) {
-    const demoTotal = Math.max(0, Number(searchParams.get("demo")) || 0);
+  if (isLocalDemo()) {
+    const requestedTotal = Number(searchParams.get("demo"));
+    const demoTotal = Number.isFinite(requestedTotal)
+      ? Math.floor(Math.max(0, requestedTotal))
+      : 0;
     return {
       qr: Math.floor(demoTotal * 0.6),
       sns: Math.ceil(demoTotal * 0.4),
@@ -203,25 +264,32 @@ async function fetchCounter(source) {
   if (source) url.searchParams.set("src", source);
   url.searchParams.set("_", String(Date.now()));
 
-  const response = await fetch(url.toString(), {
-    method: "GET",
-    cache: "no-store",
-    redirect: "follow"
-  });
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
-  if (!response.ok) throw new Error(`Counter API returned ${response.status}`);
-  const data = await response.json();
-  if (![data.qr, data.sns, data.total].every(Number.isFinite)) {
-    throw new Error("Counter API response is invalid");
+  try {
+    const response = await fetch(url.toString(), {
+      method: "GET",
+      cache: "no-store",
+      redirect: "follow",
+      signal: controller.signal
+    });
+
+    if (!response.ok) throw new Error(`Counter API returned ${response.status}`);
+    return normalizeCounterData(await response.json());
+  } finally {
+    window.clearTimeout(timeoutId);
   }
-  return data;
 }
 
 async function initialize() {
   const source = getValidSource();
   const dailyKey = source ? `${getJstDateKey()}_${source}` : null;
-  const shouldCount = Boolean(source && !localStorage.getItem(dailyKey));
+  const shouldCount = Boolean(source && !hasStoredFlag(dailyKey));
   const requestSource = shouldCount ? source : null;
+
+  // Reserve before the request so simultaneous tabs cannot both increment.
+  if (shouldCount && !isLocalDemo()) storeFlag(dailyKey);
 
   elements.sourceNote.textContent = source === "qr"
     ? "会場QRから参加"
@@ -231,14 +299,25 @@ async function initialize() {
 
   try {
     const data = await fetchCounter(requestSource);
-    if (shouldCount && !data.demo) localStorage.setItem(dailyKey, "1");
+    if (!data.demo) cacheCounter(data);
     render(data);
     maybeCelebrate(Number(data.total) || 0);
+    elements.status.classList.remove("is-error", "is-stale");
     elements.status.classList.add("is-hidden");
   } catch (error) {
     console.error(error);
-    elements.status.textContent = "つうしんに しっぱいしました";
-    elements.status.classList.add("is-error");
+    const cached = readCachedCounter();
+
+    if (cached) {
+      render(cached);
+      elements.status.textContent = "前回の記録を表示しています";
+      elements.status.classList.remove("is-hidden", "is-error");
+      elements.status.classList.add("is-stale");
+    } else {
+      elements.status.textContent = "つうしんに しっぱいしました";
+      elements.status.classList.remove("is-hidden", "is-stale");
+      elements.status.classList.add("is-error");
+    }
   }
 }
 
