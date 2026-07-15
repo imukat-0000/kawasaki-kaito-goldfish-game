@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#172b20">
+  <meta name="description" content="河﨑海斗 夏季キャンペーン 金魚育成ゲーム">
+  <title>河﨑海斗 | 金魚育成ゲーム</title>
+  <link rel="icon" href="assets/goldfish_sprite.png" type="image/png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="page-shell">
+    <header class="campaign-header">
+      <p class="campaign-kicker">KAWASAKI KAITO SUMMER CAMPAIGN</p>
+      <h1>金魚育成ゲーム</h1>
+    </header>
+
+    <section class="game-frame" aria-label="みんなで育てる金魚の桶">
+      <div class="game-screen" id="gameScreen">
+        <img class="scene" id="scene" src="assets/tub_base.png" alt="夏祭り会場の金魚桶">
+
+        <div class="scanlines" aria-hidden="true"></div>
+
+        <div class="hud hud-total">
+          <span class="hud-label">TOTAL ACCESS</span>
+          <strong id="totalCount">---</strong>
+        </div>
+
+        <div class="hud hud-level">
+          <span class="hud-label">STAGE</span>
+          <strong id="stageLabel">01</strong>
+        </div>
+
+        <div class="source-breakdown" aria-label="アクセス元の内訳">
+          <span>QR <strong id="qrCount">---</strong></span>
+          <span>SNS <strong id="snsCount">---</strong></span>
+        </div>
+
+        <div class="fish-pond" id="fishPond" aria-hidden="true"></div>
+
+        <div class="celebration" id="celebration" aria-hidden="true">
+          <div class="celebration-banner"><span id="milestoneLabel">100 ACCESS!</span></div>
+          <img src="assets/bonodori_effect.png" alt="">
+        </div>
+
+        <div class="progress-hud">
+          <div class="progress-copy">
+            <span>NEXT FESTIVAL</span>
+            <strong id="progressLabel">--- / ---</strong>
+          </div>
+          <div class="progress-track" role="progressbar" aria-label="次の節目までの進捗" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressTrack">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+        </div>
+
+        <p class="status-message" id="statusMessage" role="status">CONNECTING...</p>
+      </div>
+    </section>
+
+    <footer class="campaign-footer">
+      <p>みんなのアクセスで、金魚が育つ。</p>
+      <p class="source-note" id="sourceNote">通常アクセス</p>
+    </footer>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
