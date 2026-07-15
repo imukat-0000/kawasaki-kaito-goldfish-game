@@ -29,6 +29,7 @@ const KOI_SPRITES = [
 const MAX_VISIBLE_FISH = 72;
 
 const elements = {
+  gameScreen: document.querySelector("#gameScreen"),
   scene: document.querySelector("#scene"),
   fishPond: document.querySelector("#fishPond"),
   total: document.querySelector("#totalCount"),
@@ -147,7 +148,9 @@ function render(data) {
   elements.qr.textContent = qr.toLocaleString("ja-JP");
   elements.sns.textContent = sns.toLocaleString("ja-JP");
   elements.stage.textContent = String(stage).padStart(2, "0");
-  elements.scene.src = BACKGROUNDS[Math.min(stage, BACKGROUNDS.length - 1)];
+  const background = BACKGROUNDS[Math.min(stage, BACKGROUNDS.length - 1)];
+  elements.scene.src = background;
+  elements.gameScreen.style.setProperty("--scene-image", `url("${background}")`);
 
   elements.progressLabel.textContent = progress.nextMilestone
     ? `${total.toLocaleString("ja-JP")} / ${progress.nextMilestone.toLocaleString("ja-JP")}`

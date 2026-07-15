@@ -71,6 +71,7 @@ h1 {
 }
 
 .game-screen {
+  --scene-image: url("assets/tub_base.png");
   position: relative;
   aspect-ratio: 4 / 3;
   overflow: hidden;
@@ -89,6 +90,112 @@ h1 {
   image-rendering: pixelated;
   transition: opacity 240ms steps(3, end);
   z-index: 0;
+}
+
+.ambient-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.scene-fragment,
+.lantern-shimmer {
+  position: absolute;
+  inset: 0;
+  background-image: var(--scene-image);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  image-rendering: pixelated;
+  will-change: transform, filter, opacity;
+}
+
+.sway-left {
+  clip-path: polygon(0 0, 31% 0, 30% 47%, 22% 56%, 0 61%);
+  transform-origin: 4% 5%;
+  animation: sway-left 5.2s steps(5, end) infinite;
+}
+
+.sway-center {
+  clip-path: polygon(23% 32%, 77% 32%, 77% 51%, 63% 56%, 50% 52%, 37% 56%, 23% 51%);
+  transform-origin: 50% 32%;
+  animation: sway-center 6.4s steps(6, end) -1.7s infinite;
+}
+
+.sway-right {
+  clip-path: polygon(69% 0, 100% 0, 100% 61%, 78% 56%, 70% 47%);
+  transform-origin: 96% 5%;
+  animation: sway-right 4.7s steps(5, end) -2.3s infinite;
+}
+
+.lantern-shimmer {
+  opacity: 0;
+  filter: brightness(1.34) saturate(1.16);
+  mix-blend-mode: screen;
+}
+
+.shimmer-left {
+  clip-path: polygon(0 15%, 29% 14%, 29% 54%, 0 60%);
+  animation: lantern-flicker-left 2.1s steps(5, end) -0.4s infinite;
+}
+
+.shimmer-center {
+  clip-path: polygon(23% 31%, 77% 31%, 77% 56%, 23% 56%);
+  animation: lantern-flicker-center 2.7s steps(6, end) -1.1s infinite;
+}
+
+.shimmer-right {
+  clip-path: polygon(71% 14%, 100% 15%, 100% 60%, 71% 54%);
+  animation: lantern-flicker-right 1.8s steps(5, end) -0.8s infinite;
+}
+
+@keyframes sway-left {
+  0%, 100% { transform: translate(0, 0) rotate(0); }
+  22% { transform: translate(1px, 0) rotate(0.12deg); }
+  48% { transform: translate(2px, 1px) rotate(0.2deg); }
+  73% { transform: translate(-1px, 0) rotate(-0.1deg); }
+}
+
+@keyframes sway-center {
+  0%, 100% { transform: translate(0, 0) rotate(0); }
+  20% { transform: translate(-1px, 1px) rotate(-0.08deg); }
+  46% { transform: translate(1px, 0) rotate(0.1deg); }
+  67% { transform: translate(0, 1px) rotate(0.04deg); }
+  84% { transform: translate(-1px, 0) rotate(-0.06deg); }
+}
+
+@keyframes sway-right {
+  0%, 100% { transform: translate(0, 0) rotate(0); }
+  26% { transform: translate(-2px, 1px) rotate(-0.18deg); }
+  53% { transform: translate(1px, 0) rotate(0.08deg); }
+  78% { transform: translate(-1px, 0) rotate(-0.1deg); }
+}
+
+@keyframes lantern-flicker-left {
+  0%, 100% { opacity: 0.03; }
+  17% { opacity: 0.1; }
+  39% { opacity: 0.045; }
+  58% { opacity: 0.13; }
+  81% { opacity: 0.065; }
+}
+
+@keyframes lantern-flicker-center {
+  0%, 100% { opacity: 0.025; }
+  13% { opacity: 0.075; }
+  34% { opacity: 0.035; }
+  51% { opacity: 0.11; }
+  69% { opacity: 0.045; }
+  88% { opacity: 0.09; }
+}
+
+@keyframes lantern-flicker-right {
+  0%, 100% { opacity: 0.04; }
+  21% { opacity: 0.12; }
+  43% { opacity: 0.055; }
+  62% { opacity: 0.095; }
+  84% { opacity: 0.035; }
 }
 
 .scanlines {
@@ -380,8 +487,14 @@ h1 {
 
 @media (prefers-reduced-motion: reduce) {
   .goldfish,
-  .celebration img {
+  .celebration img,
+  .scene-fragment,
+  .lantern-shimmer {
     animation: none;
+  }
+
+  .lantern-shimmer {
+    opacity: 0.04;
   }
 
   .progress-fill,
