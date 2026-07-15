@@ -314,6 +314,21 @@ h1 {
   pointer-events: none;
 }
 
+.game-screen[data-stage="4"] .fish-pond {
+  top: 36%;
+  height: 34%;
+}
+
+.game-screen[data-stage="5"] .fish-pond {
+  top: 41%;
+  height: 34%;
+}
+
+.game-screen[data-stage="6"] .fish-pond {
+  top: 42%;
+  height: 36%;
+}
+
 .goldfish {
   position: absolute;
   width: clamp(26px, 6.4%, 62px);
