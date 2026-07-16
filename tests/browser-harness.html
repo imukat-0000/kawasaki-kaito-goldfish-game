@@ -10,6 +10,16 @@
   <script>
     const testParams = new URLSearchParams(window.location.search);
     const testMode = testParams.get("mode") || "success";
+
+    if (testParams.get("reduced") === "1") {
+      window.matchMedia = (query) => ({
+        matches: query === "(prefers-reduced-motion: reduce)",
+        media: query,
+        addEventListener() {},
+        addListener() {}
+      });
+    }
+
     const dateParts = new Intl.DateTimeFormat("en-CA", {
       timeZone: "Asia/Tokyo",
       year: "numeric",
@@ -80,6 +90,7 @@
       <div class="game-screen" id="gameScreen">
         <img class="scene" id="scene" src="../assets/tub_base.png" alt="テスト用の金魚桶">
         <div class="ambient-scene" aria-hidden="true"></div>
+        <div class="fireworks" id="fireworks" aria-hidden="true"></div>
         <div class="hud hud-total"><span class="hud-label">TOTAL FISH</span><strong id="totalCount">---</strong></div>
         <div class="hud hud-level"><span class="hud-label">STAGE</span><strong id="stageLabel">01</strong></div>
         <div class="source-breakdown"><span>QR <strong id="qrCount">---</strong></span><span>SNS <strong id="snsCount">---</strong></span></div>
