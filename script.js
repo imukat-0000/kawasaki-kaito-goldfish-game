@@ -575,20 +575,25 @@ function render(data, options = {}) {
   elements.gameScreen.style.setProperty("--scene-image", `url("${background}")`);
   renderBackgroundFireworks(stage);
 
-  const growthName = growth.type === "frog"
-    ? growth.progress >= 6 ? "カエルへ成長中" : "おたまじゃくし"
+  const isFrogGrowth = growth.type === "frog";
+  const growthTarget = isFrogGrowth ? FROG_SWIM_START_PROGRESS : GROWTH_CYCLE_LENGTH;
+  const displayedProgress = Math.min(growth.progress, growthTarget);
+  const displayedComplete = growth.complete || displayedProgress >= growthTarget;
+  const growthName = isFrogGrowth
+    ? displayedComplete ? "カエル成長完了" : growth.progress >= 6 ? "カエルへ成長中" : "おたまじゃくし"
     : "金魚";
-  const completeName = growth.type === "frog" ? "カエルへ成長" : "鯉へ進化";
-  elements.progressLabel.textContent = growth.complete
-    ? `${completeName} 10 / 10`
-    : `${growthName} ${growth.progress} / 10`;
-  const progressPercent = growth.progress * 10;
+  const completeName = isFrogGrowth ? "カエル成長完了" : "鯉へ進化";
+  const accessibleGrowthName = isFrogGrowth && growth.progress >= 6 ? "カエル" : growthName;
+  elements.progressLabel.textContent = displayedComplete
+    ? `${completeName} ${growthTarget} / ${growthTarget}`
+    : `${growthName} ${displayedProgress} / ${growthTarget}`;
+  const progressPercent = displayedProgress / growthTarget * 100;
   elements.progressFill.style.width = `${progressPercent}%`;
   const accessiblePercent = Math.floor(progressPercent * 100) / 100;
   elements.progressTrack.setAttribute("aria-valuenow", String(accessiblePercent));
-  elements.progressTrack.setAttribute("aria-valuetext", growth.complete
-    ? completeName
-    : `${growthName}の成長 ${growth.progress}回目、進化まで${10 - growth.progress}回`);
+  elements.progressTrack.setAttribute("aria-valuetext", displayedComplete
+    ? isFrogGrowth ? "カエルの成長完了、泳いでいます" : completeName
+    : `${accessibleGrowthName}の成長 ${displayedProgress}回目、進化まで${growthTarget - displayedProgress}回`);
   renderGrowth(total, options.previousTotal ?? null);
   updateVisitors(total, Boolean(options.countAdvanced));
 }
