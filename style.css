@@ -545,12 +545,12 @@ h1 {
 /* Toe anchors measured against each stage's rear rim. */
 .game-screen[data-stage="0"] .visitor-layer {
   --bird-left: 72.54%;
-  --bird-top: 23.75%;
+  --bird-top: 27.90%;
 }
 
 .game-screen[data-stage="1"] .visitor-layer {
   --bird-left: 72.54%;
-  --bird-top: 23.75%;
+  --bird-top: 28.82%;
 }
 
 .game-screen[data-stage="2"] .visitor-layer {
