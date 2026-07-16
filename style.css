@@ -539,28 +539,28 @@ h1 {
   overflow: hidden;
   pointer-events: none;
   --bird-left: 72.5%;
-  --bird-top: 28.5%;
+  --bird-top: 24.5%;
 }
 
 .game-screen[data-stage="2"] .visitor-layer,
 .game-screen[data-stage="3"] .visitor-layer {
   --bird-left: 70.5%;
-  --bird-top: 41.5%;
+  --bird-top: 37.5%;
 }
 
 .game-screen[data-stage="4"] .visitor-layer {
   --bird-left: 70%;
-  --bird-top: 48.5%;
+  --bird-top: 44.5%;
 }
 
 .game-screen[data-stage="5"] .visitor-layer {
   --bird-left: 69.5%;
-  --bird-top: 50.5%;
+  --bird-top: 46.5%;
 }
 
 .game-screen[data-stage="6"] .visitor-layer {
   --bird-left: 69.5%;
-  --bird-top: 52.5%;
+  --bird-top: 48.5%;
 }
 
 .rare-visitor {
@@ -593,7 +593,7 @@ h1 {
   top: var(--bird-top);
   z-index: 11;
   width: clamp(51px, 9.6%, 102px);
-  transform: translate(-50%, -81%);
+  transform: translate(-33.5%, -80.1%);
 }
 
 .visitor-bird:not(.is-idle) {
@@ -654,21 +654,21 @@ h1 {
 
 @keyframes bird-enter-left {
   from { transform: translate(-850%, -420%); }
-  to { transform: translate(-50%, -81%); }
+  to { transform: translate(-33.5%, -80.1%); }
 }
 
 @keyframes bird-enter-right {
   from { transform: translate(650%, -420%); }
-  to { transform: translate(-50%, -81%); }
+  to { transform: translate(-33.5%, -80.1%); }
 }
 
 @keyframes bird-leave-left {
-  from { transform: translate(-50%, -81%); }
+  from { transform: translate(-33.5%, -80.1%); }
   to { transform: translate(-850%, -420%); }
 }
 
 @keyframes bird-leave-right {
-  from { transform: translate(-50%, -81%); }
+  from { transform: translate(-33.5%, -80.1%); }
   to { transform: translate(650%, -420%); }
 }
 
