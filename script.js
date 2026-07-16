@@ -27,6 +27,8 @@ const KOI_SPRITES = [
   "assets/koi_gold.png"
 ];
 const GROWTH_CYCLE_LENGTH = 10;
+const FROG_SWIM_START_PROGRESS = 8;
+const TADPOLE_GROWTH_SCALES = [0.52, 0.46, 0.55, 0.59, 0.71, 0.83, 0.89];
 const MAX_VISIBLE_KOI = 24;
 const FROG_STAY_COUNTS = 12;
 const ANIMAL_FRAME_ROOT = "assets/animal-sprites/color-v2/frames";
@@ -374,17 +376,27 @@ function renderGrowth(total, previousTotal = null) {
       });
       goldfish.dataset.progress = String(growth.progress);
       fragment.appendChild(goldfish);
-    } else {
+    } else if (growth.progress < FROG_SWIM_START_PROGRESS) {
       const frame = Math.max(1, Math.min(8, Math.ceil(growth.progress * 8 / 9)));
       const tadpole = createPondAnimal({
         className: "growth-active growth-tadpole",
         src: `${ANIMAL_FRAME_ROOT}/metamorphosis/frame-${String(frame).padStart(2, "0")}.png`,
         seed: growth.cycleIndex * 19 + 2701,
-        scale: 0.72 + growth.progress * 0.045
+        scale: TADPOLE_GROWTH_SCALES[growth.progress - 1]
       });
       tadpole.dataset.progress = String(growth.progress);
       tadpole.dataset.metamorphosisFrame = String(frame);
       fragment.appendChild(tadpole);
+    } else {
+      const direction = seededRandom(growth.cycleIndex * 9.3 + 2.1) < 0.5 ? "swim-left" : "swim-right";
+      const frog = createPondAnimal({
+        className: "growth-active growth-frog growth-frog-young",
+        src: getAnimalFrame("frog-swim", direction, 1),
+        seed: growth.cycleIndex * 19 + 2701,
+        frameAction: { group: "frog-swim", action: direction }
+      });
+      frog.dataset.progress = String(growth.progress);
+      fragment.appendChild(frog);
     }
   }
 

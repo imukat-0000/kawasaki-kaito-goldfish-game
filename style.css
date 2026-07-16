@@ -491,7 +491,7 @@ h1 {
 }
 
 .fish-pond .goldfish.growth-tadpole {
-  width: clamp(78px, 26%, 216px);
+  width: clamp(72px, 20%, 176px);
 }
 
 .fish-pond .goldfish.growth-frog {
@@ -592,7 +592,7 @@ h1 {
   left: var(--bird-left);
   top: var(--bird-top);
   z-index: 11;
-  width: clamp(62px, 9.8%, 106px);
+  width: clamp(51px, 9.6%, 102px);
   transform: translate(-50%, -81%);
 }
 
