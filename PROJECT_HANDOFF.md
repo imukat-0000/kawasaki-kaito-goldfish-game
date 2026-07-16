@@ -65,7 +65,8 @@
 
 - 節目到達時に `assets/bonodori_effect.png` の盆踊り演出を約5秒再生する。
 - 演出は `localStorage` の `celebration_shown_節目` で端末ごとに一度だけ表示する。
-- 背景は `tub_base.png` から `tub_levelup1.png` ～ `tub_levelup6.png` へ切り替える。
+- 背景は `tub_base.png` から `assets/backgrounds-no-static-fireworks/tub_levelup1.png` ～ `tub_levelup6.png` へ切り替える。
+- 元の `assets/tub_levelup1.png` ～ `tub_levelup6.png` は編集前素材として残す。
 - 次の節目までの進捗バーを表示する。
 - 画面内にQR経由とSNS経由の内訳を表示する。
 
@@ -76,10 +77,10 @@
 - 枝葉・提灯の移動量は最大1px程度。
 - 提灯の明滅は楕円で切り抜いた提灯本体の内部だけに適用する。
 - 桶、屋台、建物、HUDは動かさない。
-- 背景画像に描かれた花火の位置へ、専用の透過画像素材を重ねて一連の打ち上げを表現する。
+- 花火ありステージは静止花火を除去した背景画像を使用し、元々描かれていた全位置へ専用の透過画像素材を重ねて一連の打ち上げを表現する。
 - 花火は `打ち上げ → 開き始め → 満開 → 消え際` の4フレームを順番に再生する。
 - 素材は `assets/fireworks/firework-launch.png`、`firework-opening.png`、`firework-full.png`、`firework-fade.png`。
-- 花火数はステージ0～6で `0 / 3 / 5 / 10 / 12 / 7 / 10`。位置と個数は元画像に合わせる。
+- 花火数はステージ0～6で `0 / 3 / 5 / 14 / 16 / 9 / 8`。小さな花火を含め、位置と個数は元画像に合わせる。
 - 花火色は赤・金・青・紫。低ステージは赤と金、ステージ3で青、ステージ4以降で紫を追加する。
 - 後半ほど周期を短くし、各花火の開始位相と周期には小さな乱数差を付ける。
 - `prefers-reduced-motion: reduce` では背景、魚、花火のアニメーションを停止する。
@@ -93,7 +94,7 @@
 - `counter.gs`: Google Apps ScriptのカウンターAPI
 - `README.md`: セットアップと基本仕様
 - `PROJECT_HANDOFF.md`: この引き継ぎメモ
-- `assets/`: 背景、魚、鯉、盆踊り画像、花火4フレーム素材
+- `assets/`: 元背景、静止花火なし背景、魚、鯉、盆踊り画像、花火4フレーム素材
 
 ## ローカル確認
 

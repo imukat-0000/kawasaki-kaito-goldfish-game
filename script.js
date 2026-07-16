@@ -7,12 +7,12 @@ const API_URL = "https://script.google.com/macros/s/AKfycbwJKRyeAw9jiC-jmvJ2fIgR
 const MILESTONES = [100, 500, 1000, 10000, 100000, 1000000];
 const BACKGROUNDS = [
   "assets/tub_base.png",
-  "assets/tub_levelup1.png",
-  "assets/tub_levelup2.png",
-  "assets/tub_levelup3.png",
-  "assets/tub_levelup4.png",
-  "assets/tub_levelup5.png",
-  "assets/tub_levelup6.png"
+  "assets/backgrounds-no-static-fireworks/tub_levelup1.png",
+  "assets/backgrounds-no-static-fireworks/tub_levelup2.png",
+  "assets/backgrounds-no-static-fireworks/tub_levelup3.png",
+  "assets/backgrounds-no-static-fireworks/tub_levelup4.png",
+  "assets/backgrounds-no-static-fireworks/tub_levelup5.png",
+  "assets/backgrounds-no-static-fireworks/tub_levelup6.png"
 ];
 const GOLDFISH_SPRITES = [
   "assets/goldfish_sprite.png",
@@ -53,32 +53,36 @@ const BACKGROUND_FIREWORKS = [
     { x: 85, y: 18, size: 5 }
   ],
   [
-    { x: 13, y: 7, size: 7 }, { x: 23, y: 7, size: 8 },
-    { x: 34, y: 7, size: 8 }, { x: 50, y: 7, size: 8 },
-    { x: 62, y: 7, size: 8 }, { x: 73, y: 7, size: 8 },
-    { x: 88, y: 7, size: 7 }, { x: 18, y: 18, size: 7 },
-    { x: 29, y: 17, size: 7 }, { x: 85, y: 18, size: 7 }
+    { x: 14, y: 7, size: 7 }, { x: 23, y: 6, size: 8 },
+    { x: 30, y: 4, size: 3 }, { x: 37, y: 7, size: 7 },
+    { x: 45, y: 5, size: 3 }, { x: 52, y: 6, size: 8 },
+    { x: 62, y: 9, size: 7 }, { x: 72, y: 4, size: 5 },
+    { x: 78, y: 9, size: 7 }, { x: 18, y: 18, size: 7 },
+    { x: 29, y: 16, size: 7 }, { x: 71, y: 15, size: 7 },
+    { x: 76, y: 18, size: 3 }, { x: 85, y: 17, size: 6 }
   ],
   [
-    { x: 14, y: 7, size: 7 }, { x: 23, y: 7, size: 8 },
-    { x: 35, y: 7, size: 8 }, { x: 52, y: 7, size: 8 },
-    { x: 63, y: 6, size: 8 }, { x: 76, y: 7, size: 8 },
-    { x: 89, y: 6, size: 7 }, { x: 18, y: 18, size: 7 },
-    { x: 29, y: 17, size: 7 }, { x: 75, y: 17, size: 7 },
-    { x: 85, y: 18, size: 7 }, { x: 94, y: 14, size: 5 }
+    { x: 14, y: 7, size: 7 }, { x: 23, y: 6, size: 8 },
+    { x: 35, y: 3, size: 4 }, { x: 41, y: 8, size: 7 },
+    { x: 45, y: 3, size: 3 }, { x: 52, y: 5, size: 7 },
+    { x: 63, y: 8, size: 7 }, { x: 75, y: 10, size: 7 },
+    { x: 80, y: 2, size: 5 }, { x: 83, y: 8, size: 4 },
+    { x: 12, y: 13, size: 3 }, { x: 18, y: 16, size: 7 },
+    { x: 29, y: 16, size: 7 }, { x: 69, y: 14, size: 3 },
+    { x: 71, y: 17, size: 4 }, { x: 84, y: 16, size: 5 }
   ],
   [
-    { x: 15, y: 6, size: 7 }, { x: 26, y: 6, size: 7 },
-    { x: 40, y: 9, size: 6 }, { x: 54, y: 8, size: 6 },
-    { x: 66, y: 6, size: 7 }, { x: 79, y: 7, size: 7 },
-    { x: 94, y: 13, size: 5 }
+    { x: 17, y: 5, size: 8 }, { x: 26, y: 3, size: 3 },
+    { x: 27, y: 7, size: 3 }, { x: 42, y: 6, size: 6 },
+    { x: 36, y: 14, size: 4 }, { x: 58, y: 5, size: 4 },
+    { x: 64, y: 6, size: 7 }, { x: 79, y: 7, size: 7 },
+    { x: 84, y: 20, size: 4 }
   ],
   [
-    { x: 22, y: 5, size: 7 }, { x: 32, y: 5, size: 8 },
-    { x: 40, y: 11, size: 6 }, { x: 59, y: 5, size: 8 },
-    { x: 68, y: 5, size: 8 }, { x: 77, y: 11, size: 7 },
-    { x: 87, y: 6, size: 7 }, { x: 15, y: 13, size: 5 },
-    { x: 49, y: 13, size: 5 }, { x: 93, y: 14, size: 5 }
+    { x: 24, y: 6, size: 7 }, { x: 32, y: 6, size: 7 },
+    { x: 40, y: 6, size: 4 }, { x: 59, y: 4, size: 5 },
+    { x: 68, y: 6, size: 7 }, { x: 76, y: 6, size: 7 },
+    { x: 29, y: 16, size: 6 }, { x: 72, y: 16, size: 6 }
   ]
 ];
 const fallbackStorage = new Map();
