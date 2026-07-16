@@ -63,7 +63,8 @@
 5. 100,000匹
 6. 1,000,000匹
 
-- 節目到達時に `assets/bonodori_effect.png` の盆踊り演出を約5秒再生する。
+- 節目到達時に二段櫓を中央へ表示し、上段のカエルが太鼓を叩き、周囲の浴衣姿の金魚・鯉・カエル6体が踊る演出を約5秒再生する。
+- 櫓・太鼓カエル・踊り手は `assets/bonodori-v2-samples/` の個別透過PNGを使用し、それぞれ別のCSSアニメーションを適用する。
 - 演出は `localStorage` の `celebration_shown_節目` で端末ごとに一度だけ表示する。
 - 背景は `tub_base.png` から `assets/backgrounds-no-static-fireworks/tub_levelup1.png` ～ `tub_levelup6.png` へ切り替える。
 - 元の `assets/tub_levelup1.png` ～ `tub_levelup6.png` は編集前素材として残す。
@@ -95,7 +96,7 @@
 - `README.md`: セットアップと基本仕様
 - `PROJECT_HANDOFF.md`: この引き継ぎメモ
 - `assets/`: 元背景、静止花火なし背景、魚、鯉、盆踊り画像、花火4フレーム素材
-- `assets/bonodori-v2-samples/`: 二段櫓、太鼓カエル、浴衣姿の金魚・鯉・カエル、全体配置の透過PNGサンプル。現行エフェクトには未反映。
+- `assets/bonodori-v2-samples/`: 現行エフェクトで使用する二段櫓、太鼓カエル、浴衣姿の金魚・鯉・カエルと、全体配置サンプル。
 
 ## ローカル確認
 

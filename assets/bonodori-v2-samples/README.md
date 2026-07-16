@@ -1,6 +1,6 @@
 # Bon Odori V2 sample assets
 
-These transparent PNG files are design samples and are not wired into the game yet.
+These transparent PNG files provide the individual layers for the current milestone celebration effect.
 
 - `yagura-two-tier.png`: centered two-tier festival yagura and taiko
 - `frog-drummer.png`: happi-clad frog with two drumsticks

@@ -6,7 +6,7 @@
   <base href="../">
   <title>Goldfish game browser test harness</title>
   <link rel="icon" href="assets/goldfish_sprite.png" type="image/png">
-  <link rel="stylesheet" href="../style.css?v=20260716-fireworks11">
+  <link rel="stylesheet" href="../style.css?v=20260716-bonodori1">
   <script>
     const testParams = new URLSearchParams(window.location.search);
     const testMode = testParams.get("mode") || "success";
@@ -86,7 +86,19 @@
         <div class="hud hud-level"><span class="hud-label">STAGE</span><strong id="stageLabel">01</strong></div>
         <div class="source-breakdown"><span>QR <strong id="qrCount">---</strong></span><span>SNS <strong id="snsCount">---</strong></span></div>
         <div class="fish-pond" id="fishPond" aria-hidden="true"></div>
-        <div class="celebration" id="celebration" aria-hidden="true"><div class="celebration-banner"><span id="milestoneLabel">100 FISH!</span></div></div>
+        <div class="celebration" id="celebration" aria-hidden="true">
+          <div class="celebration-banner"><span id="milestoneLabel">100 FISH!</span></div>
+          <div class="bonodori-effect">
+            <img class="bonodori-yagura" src="assets/bonodori-v2-samples/yagura-two-tier.png" alt="">
+            <img class="bonodori-drummer" src="assets/bonodori-v2-samples/frog-drummer.png" alt="">
+            <img class="bonodori-dancer dancer-goldfish dancer-one" src="assets/bonodori-v2-samples/goldfish-yukata-dancer.png" alt="">
+            <img class="bonodori-dancer dancer-koi dancer-two" src="assets/bonodori-v2-samples/koi-yukata-dancer.png" alt="">
+            <img class="bonodori-dancer dancer-frog dancer-three" src="assets/bonodori-v2-samples/frog-yukata-dancer.png" alt="">
+            <img class="bonodori-dancer dancer-goldfish dancer-four" src="assets/bonodori-v2-samples/goldfish-yukata-dancer.png" alt="">
+            <img class="bonodori-dancer dancer-koi dancer-five" src="assets/bonodori-v2-samples/koi-yukata-dancer.png" alt="">
+            <img class="bonodori-dancer dancer-frog dancer-six" src="assets/bonodori-v2-samples/frog-yukata-dancer.png" alt="">
+          </div>
+        </div>
         <div class="progress-hud">
           <div class="progress-copy"><span>NEXT FESTIVAL</span><strong id="progressLabel">--- / ---</strong></div>
           <div class="progress-track" role="progressbar" aria-label="次の節目までの進捗" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressTrack"><div class="progress-fill" id="progressFill"></div></div>
@@ -96,6 +108,6 @@
     </section>
     <footer class="campaign-footer"><p>browser test</p><p class="source-note" id="sourceNote">通常アクセス</p></footer>
   </main>
-  <script src="../script.js?v=20260716-fireworks11"></script>
+  <script src="../script.js?v=20260716-bonodori1"></script>
 </body>
 </html>

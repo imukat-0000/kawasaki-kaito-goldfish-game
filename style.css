@@ -494,10 +494,83 @@ h1 {
   animation: celebration-in 5s steps(8, end) both;
 }
 
-.celebration img {
-  width: 84%;
+.bonodori-effect {
+  position: absolute;
+  inset: 9% 2% 3%;
+  overflow: hidden;
+}
+
+.bonodori-effect img {
+  position: absolute;
   image-rendering: pixelated;
-  animation: bonodori 800ms steps(4, end) infinite alternate;
+  filter: drop-shadow(3px 3px 0 rgba(7, 20, 12, 0.62));
+  user-select: none;
+}
+
+.bonodori-yagura {
+  z-index: 1;
+  top: 4%;
+  left: 50%;
+  width: 52%;
+  translate: -50% 0;
+}
+
+.bonodori-drummer {
+  z-index: 3;
+  top: 13%;
+  left: 50%;
+  width: 15%;
+  transform-origin: 50% 82%;
+  animation: frog-drum 420ms steps(2, end) infinite alternate;
+}
+
+.bonodori-dancer {
+  z-index: 4;
+  width: 15%;
+  transform-origin: 50% 88%;
+  animation: bonodori-dance 720ms steps(4, end) var(--dance-delay) infinite alternate;
+}
+
+.dancer-one {
+  top: 23%;
+  left: 3%;
+  --facing: 1;
+  --dance-delay: -120ms;
+}
+
+.dancer-two {
+  top: 23%;
+  right: 3%;
+  --facing: -1;
+  --dance-delay: -480ms;
+}
+
+.dancer-three {
+  top: 49%;
+  left: 10%;
+  --facing: 1;
+  --dance-delay: -300ms;
+}
+
+.dancer-four {
+  top: 49%;
+  right: 10%;
+  --facing: -1;
+  --dance-delay: -660ms;
+}
+
+.dancer-five {
+  top: 65%;
+  left: 27%;
+  --facing: 1;
+  --dance-delay: -540ms;
+}
+
+.dancer-six {
+  top: 65%;
+  right: 27%;
+  --facing: -1;
+  --dance-delay: -180ms;
 }
 
 .celebration-banner {
@@ -525,9 +598,15 @@ h1 {
   100% { opacity: 0; }
 }
 
-@keyframes bonodori {
-  from { transform: translateY(-4px) scale(0.98); }
-  to { transform: translateY(4px) scale(1.02); }
+@keyframes frog-drum {
+  from { transform: translateX(-50%) translateY(2%) rotate(-5deg) scale(0.96); }
+  to { transform: translateX(-50%) translateY(-3%) rotate(5deg) scale(1.02); }
+}
+
+@keyframes bonodori-dance {
+  0% { transform: translateY(3%) rotate(-5deg) scaleX(var(--facing)) scale(0.96); }
+  50% { transform: translateY(-4%) rotate(2deg) scaleX(var(--facing)) scale(1.02); }
+  100% { transform: translateY(1%) rotate(6deg) scaleX(var(--facing)) scale(0.98); }
 }
 
 .progress-hud {
@@ -657,7 +736,8 @@ h1 {
 
 @media (prefers-reduced-motion: reduce) {
   .goldfish,
-  .celebration img,
+  .bonodori-drummer,
+  .bonodori-dancer,
   .ambient-object {
     animation: none;
   }
