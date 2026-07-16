@@ -481,7 +481,7 @@ h1 {
 
 .fish-pond .goldfish.is-koi {
   z-index: 2;
-  width: clamp(42px, 10%, 96px);
+  width: clamp(84px, 20%, 192px);
   filter: drop-shadow(3px 3px 0 rgba(7, 20, 12, 0.65));
 }
 
@@ -539,28 +539,28 @@ h1 {
   overflow: hidden;
   pointer-events: none;
   --bird-left: 76%;
-  --bird-top: 52%;
+  --bird-top: 54%;
 }
 
 .game-screen[data-stage="2"] .visitor-layer,
 .game-screen[data-stage="3"] .visitor-layer {
   --bird-left: 75%;
-  --bird-top: 60%;
+  --bird-top: 62%;
 }
 
 .game-screen[data-stage="4"] .visitor-layer {
   --bird-left: 74.5%;
-  --bird-top: 62.5%;
+  --bird-top: 64.5%;
 }
 
 .game-screen[data-stage="5"] .visitor-layer {
   --bird-left: 74%;
-  --bird-top: 65%;
+  --bird-top: 67%;
 }
 
 .game-screen[data-stage="6"] .visitor-layer {
   --bird-left: 74%;
-  --bird-top: 66%;
+  --bird-top: 68%;
 }
 
 .rare-visitor {
@@ -592,12 +592,12 @@ h1 {
   left: var(--bird-left);
   top: var(--bird-top);
   z-index: 11;
-  width: clamp(88px, 14%, 152px);
+  width: clamp(62px, 9.8%, 106px);
   transform: translate(-50%, -81%);
 }
 
 .visitor-bird:not(.is-idle) {
-  width: clamp(96px, 18%, 192px);
+  width: clamp(67px, 12.6%, 134px);
 }
 
 .visitor-cat.from-left.is-entering {
