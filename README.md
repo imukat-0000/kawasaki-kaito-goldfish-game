@@ -39,6 +39,12 @@ GitHub Pagesなど公開環境でステージ見本を共有する場合は `?sa
 https://example.github.io/project/?sample=1000000
 ```
 
+ステージ変更時の節目演出も確認する場合は `effect=1` を追加します。この共有用演出はページを開くたびに再生されます。
+
+```text
+https://example.github.io/project/?sample=1000000&effect=1
+```
+
 通信障害の回帰確認には `tests/browser-harness.html` を使用します。`mode` は `success`、`failure`、`failure-cache`、`invalid`、`timeout-cache`、`storage-error` に対応し、`reset=1` で試験用の保存値を初期化します。
 
 ```text

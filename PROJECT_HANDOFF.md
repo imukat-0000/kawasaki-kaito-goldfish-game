@@ -113,10 +113,11 @@ http://localhost:8000/?demo=1000
 http://localhost:8000/?demo=1000000
 ```
 
-公開環境では共有専用の `?sample=` を使用できる。節目の値だけを受け付け、API通信・加算・節目到達演出は行わない。
+公開環境では共有専用の `?sample=` を使用できる。節目の値だけを受け付け、API通信・加算は行わない。通常は節目到達演出を再生せず、`effect=1` を追加した場合だけ保存状態に関係なく毎回再生する。
 
 ```text
 https://imukat-0000.github.io/kawasaki-kaito-goldfish-game/?sample=1000000
+https://imukat-0000.github.io/kawasaki-kaito-goldfish-game/?sample=1000000&effect=1
 ```
 
 確認後はローカルサーバーとブラウザの確認タブを終了し、不要な処理を残さない。

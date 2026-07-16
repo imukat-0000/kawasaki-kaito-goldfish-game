@@ -339,14 +339,14 @@ function render(data) {
   renderFish(total);
 }
 
-function maybeCelebrate(total) {
+function maybeCelebrate(total, force = false) {
   const reachedMilestone = [...MILESTONES].reverse().find((milestone) => total >= milestone);
   if (!reachedMilestone) return;
 
   const storageKey = `celebration_shown_${reachedMilestone}`;
-  if (hasStoredFlag(storageKey)) return;
+  if (!force && hasStoredFlag(storageKey)) return;
 
-  storeFlag(storageKey);
+  if (!force) storeFlag(storageKey);
   elements.milestoneLabel.textContent = `${reachedMilestone.toLocaleString("ja-JP")} FISH!`;
   elements.celebration.classList.remove("is-playing");
   requestAnimationFrame(() => elements.celebration.classList.add("is-playing"));
@@ -427,7 +427,11 @@ async function initialize() {
     const data = await fetchCounter(requestSource);
     if (!data.demo) cacheCounter(data);
     render(data);
-    if (!data.preview) maybeCelebrate(Number(data.total) || 0);
+    const forcePreviewEffect = data.preview
+      && new URLSearchParams(window.location.search).get("effect") === "1";
+    if (!data.preview || forcePreviewEffect) {
+      maybeCelebrate(Number(data.total) || 0, forcePreviewEffect);
+    }
     elements.status.classList.remove("is-error", "is-stale");
     elements.status.classList.add("is-hidden");
   } catch (error) {
