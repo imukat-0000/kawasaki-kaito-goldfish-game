@@ -25,6 +25,12 @@ https://example.github.io/project/?src=sns
 
 ## ローカル確認
 
+本番カウントへ接続せず、カウント加算・任意値・全ステージ・節目演出を操作して確認する場合は、専用テストページを使用します。テスト値はブラウザ内だけに保存され、本番のQR/SNS件数には反映されません。
+
+```text
+http://localhost:8000/counter-test.html
+```
+
 API未設定時は `?demo=値` で表示確認できます。
 
 ```text

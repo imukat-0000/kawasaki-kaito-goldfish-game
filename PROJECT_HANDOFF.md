@@ -90,8 +90,11 @@
 ## ファイル構成
 
 - `index.html`: ゲーム画面とHUD
+- `counter-test.html`: 本番APIへ接続しない操作用テストページ
 - `style.css`: ピクセルUI、魚、節目演出、背景・花火アニメーション
 - `script.js`: API通信、重複防止、魚配置、背景花火制御、ステージ・進捗処理
+- `tests/counter-test.css`: 操作用テストパネルのスタイル
+- `tests/counter-test.js`: ローカルのテスト値、加算、ステージ移動、保存処理
 - `counter.gs`: Google Apps ScriptのカウンターAPI
 - `README.md`: セットアップと基本仕様
 - `PROJECT_HANDOFF.md`: この引き継ぎメモ
@@ -104,6 +107,12 @@
 
 ```sh
 python3 -m http.server 8000
+```
+
+本番カウントを変更せずに操作確認する場合は、次の専用ページを開く。QR/SNSの加算、任意値入力、次の節目、全ステージへの移動、リセットができ、テスト値はブラウザ内だけに保存される。
+
+```text
+http://localhost:8000/counter-test.html
 ```
 
 デモ値は `?demo=` で指定できる。

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#172b20">
+  <meta name="description" content="金魚育成ゲームのカウンター動作テスト">
+  <title>カウンターテスト | 金魚育成ゲーム</title>
+  <link rel="icon" href="assets/goldfish_sprite.png" type="image/png">
+  <link rel="stylesheet" href="style.css?v=20260716-bonodori1">
+  <link rel="stylesheet" href="tests/counter-test.css?v=20260716-1">
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has("sample")) {
+      params.set("sample", "0");
+      history.replaceState(null, "", `${location.pathname}?${params}`);
+    }
+  </script>
+</head>
+<body>
+  <main class="page-shell test-page">
+    <header class="campaign-header">
+      <p class="campaign-kicker">COUNTER SANDBOX</p>
+      <h1>カウンターテスト</h1>
+    </header>
+
+    <section class="game-frame" aria-label="テスト用の金魚育成画面">
+      <div class="game-screen" id="gameScreen">
+        <img class="scene" id="scene" src="assets/tub_base.png" alt="夏祭り会場の金魚桶">
+
+        <div class="ambient-scene" aria-hidden="true">
+          <div class="ambient-object foliage-object foliage-left"></div>
+          <div class="ambient-object foliage-object foliage-right"></div>
+          <div class="ambient-object lantern-object lantern-one"></div>
+          <div class="ambient-object lantern-object lantern-two"></div>
+          <div class="ambient-object lantern-object lantern-three"></div>
+          <div class="ambient-object lantern-object lantern-four"></div>
+        </div>
+
+        <div class="background-fireworks" id="fireworks" aria-hidden="true"></div>
+        <div class="scanlines" aria-hidden="true"></div>
+
+        <div class="hud hud-total">
+          <span class="hud-label">TOTAL FISH</span>
+          <strong id="totalCount">0</strong>
+        </div>
+        <div class="hud hud-level">
+          <span class="hud-label">STAGE</span>
+          <strong id="stageLabel">00</strong>
+        </div>
+        <div class="source-breakdown" aria-label="テスト値の内訳">
+          <span>QR <strong id="qrCount">0</strong></span>
+          <span>SNS <strong id="snsCount">0</strong></span>
+        </div>
+
+        <div class="fish-pond" id="fishPond" aria-hidden="true"></div>
+
+        <div class="celebration" id="celebration" aria-hidden="true">
+          <div class="celebration-banner"><span id="milestoneLabel">100 FISH!</span></div>
+          <div class="bonodori-effect">
+            <img class="bonodori-yagura" src="assets/bonodori-v2-samples/yagura-two-tier.png" alt="">
+            <img class="bonodori-drummer" src="assets/bonodori-v2-samples/frog-drummer.png" alt="">
+            <img class="bonodori-dancer dancer-goldfish dancer-one" src="assets/bonodori-v2-samples/goldfish-yukata-dancer.png" alt="">
+            <img class="bonodori-dancer dancer-koi dancer-two" src="assets/bonodori-v2-samples/koi-yukata-dancer.png" alt="">
+            <img class="bonodori-dancer dancer-frog dancer-three" src="assets/bonodori-v2-samples/frog-yukata-dancer.png" alt="">
+            <img class="bonodori-dancer dancer-goldfish dancer-four" src="assets/bonodori-v2-samples/goldfish-yukata-dancer.png" alt="">
+            <img class="bonodori-dancer dancer-koi dancer-five" src="assets/bonodori-v2-samples/koi-yukata-dancer.png" alt="">
+            <img class="bonodori-dancer dancer-frog dancer-six" src="assets/bonodori-v2-samples/frog-yukata-dancer.png" alt="">
+          </div>
+        </div>
+
+        <div class="progress-hud">
+          <div class="progress-copy">
+            <span>NEXT FESTIVAL</span>
+            <strong id="progressLabel">0 / 100</strong>
+          </div>
+          <div class="progress-track" role="progressbar" aria-label="次の節目までの進捗" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressTrack">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+        </div>
+
+        <p class="status-message is-hidden" id="statusMessage" role="status">TEST MODE</p>
+      </div>
+    </section>
+
+    <section class="counter-controls" aria-labelledby="counterControlsTitle">
+      <div class="test-status-row">
+        <div>
+          <p class="test-eyebrow">LOCAL SANDBOX</p>
+          <h2 id="counterControlsTitle">テスト操作</h2>
+        </div>
+        <strong class="test-safety">本番カウントには送信しません</strong>
+      </div>
+
+      <div class="counter-actions" aria-label="カウント加算">
+        <button type="button" class="test-button is-qr" data-add-qr="1">QR +1</button>
+        <button type="button" class="test-button is-sns" data-add-sns="1">SNS +1</button>
+        <button type="button" class="test-button" data-add-total="10">合計 +10</button>
+        <button type="button" class="test-button" data-add-total="100">合計 +100</button>
+        <button type="button" class="test-button is-next" id="nextMilestoneButton">次の節目</button>
+        <button type="button" class="test-button is-reset" id="resetTestButton">リセット</button>
+      </div>
+
+      <form class="counter-form" id="counterTestForm">
+        <label>QR<input type="number" id="testQrInput" min="0" step="1" inputmode="numeric"></label>
+        <label>SNS<input type="number" id="testSnsInput" min="0" step="1" inputmode="numeric"></label>
+        <button type="submit" class="test-button is-apply">この値を反映</button>
+      </form>
+
+      <div class="stage-jumps" aria-label="ステージ見本">
+        <button type="button" data-test-total="0">STAGE 0</button>
+        <button type="button" data-test-total="100">100</button>
+        <button type="button" data-test-total="500">500</button>
+        <button type="button" data-test-total="1000">1,000</button>
+        <button type="button" data-test-total="10000">10,000</button>
+        <button type="button" data-test-total="100000">100,000</button>
+        <button type="button" data-test-total="1000000">1,000,000</button>
+      </div>
+    </section>
+
+    <footer class="campaign-footer">
+      <p>テスト値はこの端末内だけに保存されます。</p>
+      <p class="source-note" id="sourceNote">テストモード</p>
+    </footer>
+  </main>
+
+  <script src="script.js?v=20260716-bonodori1"></script>
+  <script src="tests/counter-test.js?v=20260716-1"></script>
+</body>
+</html>
