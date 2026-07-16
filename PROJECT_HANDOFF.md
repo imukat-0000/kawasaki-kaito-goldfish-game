@@ -9,7 +9,7 @@
 - GitHub: `https://github.com/imukat-0000/kawasaki-kaito-goldfish-game`
 - 公開サイト: `https://imukat-0000.github.io/kawasaki-kaito-goldfish-game/`
 - ブランチ: `main`
-- 記録時の最新コミット: `8a92459 Target ambient motion to individual objects`
+- 今回作業開始時のコミット: `7fef79e Animate stage artwork fireworks`
 
 ## カウンターAPI
 
@@ -75,10 +75,13 @@
 - 各ステージの物体位置に合わせ、左の枝葉、右の枝葉、代表的な提灯4個だけを切り抜いて動かす。
 - 枝葉・提灯の移動量は最大1px程度。
 - 提灯の明滅は楕円で切り抜いた提灯本体の内部だけに適用する。
-- 桶、屋台、建物、背景画像内の花火、HUDは動かさない。
-- 背景画像に描かれた花火をステージ別の座標で切り抜き、開花・明滅アニメーションを付ける。
+- 桶、屋台、建物、HUDは動かさない。
+- 背景画像に描かれた花火の位置へ、専用の透過画像素材を重ねて一連の打ち上げを表現する。
+- 花火は `打ち上げ → 開き始め → 満開 → 消え際` の4フレームを順番に再生する。
+- 素材は `assets/fireworks/firework-launch.png`、`firework-opening.png`、`firework-full.png`、`firework-fade.png`。
 - 花火数はステージ0～6で `0 / 3 / 5 / 10 / 12 / 7 / 10`。位置と個数は元画像に合わせる。
-- 後半ほど周期・輝度・拡大率を上げ、各花火の開始位相と周期には小さな乱数差を付ける。
+- 花火色は赤・金・青・紫。低ステージは赤と金、ステージ3で青、ステージ4以降で紫を追加する。
+- 後半ほど周期を短くし、各花火の開始位相と周期には小さな乱数差を付ける。
 - `prefers-reduced-motion: reduce` では背景、魚、花火のアニメーションを停止する。
 - ステージ別の切り抜き座標は `style.css` の `.game-screen[data-stage="1"]` ～ `[data-stage="6"]` にある。
 
@@ -90,7 +93,7 @@
 - `counter.gs`: Google Apps ScriptのカウンターAPI
 - `README.md`: セットアップと基本仕様
 - `PROJECT_HANDOFF.md`: この引き継ぎメモ
-- `assets/`: 背景、魚、鯉、盆踊り画像
+- `assets/`: 背景、魚、鯉、盆踊り画像、花火4フレーム素材
 
 ## ローカル確認
 

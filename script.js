@@ -29,6 +29,18 @@ const KOI_SPRITES = [
 const MAX_VISIBLE_FISH = 72;
 const REQUEST_TIMEOUT_MS = 10000;
 const COUNTER_CACHE_KEY = "counter_last_success";
+const FIREWORK_PHASES = [
+  { name: "launch", src: "assets/fireworks/firework-launch.png" },
+  { name: "opening", src: "assets/fireworks/firework-opening.png" },
+  { name: "full", src: "assets/fireworks/firework-full.png" },
+  { name: "fade", src: "assets/fireworks/firework-fade.png" }
+];
+const FIREWORK_COLORS = [
+  { name: "red", hue: 0 },
+  { name: "gold", hue: 28 },
+  { name: "cyan", hue: 168 },
+  { name: "violet", hue: 252 }
+];
 const BACKGROUND_FIREWORKS = [
   [],
   [
@@ -168,31 +180,38 @@ function renderBackgroundFireworks(stage) {
   const fireworks = BACKGROUND_FIREWORKS[stage] || [];
   const fragment = document.createDocumentFragment();
   const baseDuration = Math.max(3.8, 7.2 - stage * 0.55);
+  const availableColors = Math.min(FIREWORK_COLORS.length, Math.max(2, stage));
 
   elements.fireworks.replaceChildren();
   elements.fireworks.dataset.count = String(fireworks.length);
-  elements.fireworks.style.setProperty("--bloom-scale", String(1.04 + stage * 0.008));
-  elements.fireworks.style.setProperty("--bloom-brightness", String(1.36 + stage * 0.05));
+  elements.fireworks.dataset.phases = String(FIREWORK_PHASES.length);
 
   fireworks.forEach(({ x, y, size }, index) => {
     const firework = document.createElement("span");
-    const image = document.createElement("span");
     const diameter = size * 2;
     const duration = baseDuration + (index % 3) * 0.55 + Math.random() * 0.35;
     const stagger = stage <= 2 ? 1.45 : stage <= 4 ? 0.82 : 0.58;
     const delay = index * stagger + stage * 0.37 + Math.random() * 1.2;
+    const color = FIREWORK_COLORS[(index + stage) % availableColors];
 
     firework.className = "background-firework";
+    firework.dataset.color = color.name;
     firework.style.setProperty("--burst-left", `${x - size}%`);
     firework.style.setProperty("--burst-top", `${y - size}%`);
     firework.style.setProperty("--burst-diameter", `${diameter}%`);
     firework.style.setProperty("--burst-duration", `${duration}s`);
     firework.style.setProperty("--burst-delay", `${-delay}s`);
-    image.className = "background-firework-image";
-    image.style.setProperty("--image-scale", `${10000 / diameter}%`);
-    image.style.setProperty("--image-left", `${-((x - size) * 100) / diameter}%`);
-    image.style.setProperty("--image-top", `${-((y - size) * 100) / diameter}%`);
-    firework.appendChild(image);
+    firework.style.setProperty("--firework-hue", `${color.hue}deg`);
+
+    FIREWORK_PHASES.forEach(({ name, src }) => {
+      const image = document.createElement("img");
+      image.className = `firework-phase firework-${name}`;
+      image.src = src;
+      image.alt = "";
+      image.draggable = false;
+      firework.appendChild(image);
+    });
+
     fragment.appendChild(firework);
   });
 
