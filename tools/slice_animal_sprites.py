@@ -33,6 +33,20 @@ SHEETS = {
         "columns": 4,
         "color_only": True,
     },
+    "cat-watch": {
+        "file": "cat-watch-tail-sprite-sheet.png",
+        "rows": ["watch-tail"],
+        "columns": 4,
+        "offsets": [-5, -3, 9, 13],
+        "color_only": True,
+    },
+    "bird-watch": {
+        "file": "bird-watch-head-sprite-sheet.png",
+        "rows": ["watch-head"],
+        "columns": 4,
+        "centers": [81, 218, 351, 486],
+        "color_only": True,
+    },
 }
 
 
@@ -47,13 +61,21 @@ def split_grid(name, config, asset_dir):
 
     for row_index, action in enumerate(rows):
         for column_index in range(columns):
-            left = round(column_index * source.width / columns)
-            right = round((column_index + 1) * source.width / columns)
+            if "centers" in config:
+                left = round(config["centers"][column_index] - cell_width / 2)
+                right = left + cell_width
+            else:
+                left = round(column_index * source.width / columns)
+                right = round((column_index + 1) * source.width / columns)
             top = round(row_index * source.height / len(rows))
             bottom = round((row_index + 1) * source.height / len(rows))
             frame = source.crop((left, top, right, bottom))
             canvas = Image.new("RGBA", (cell_width, cell_height))
-            canvas.paste(frame, ((cell_width - frame.width) // 2, (cell_height - frame.height) // 2))
+            x_offset = config.get("offsets", [0] * columns)[column_index]
+            canvas.paste(frame, (
+                (cell_width - frame.width) // 2 + x_offset,
+                (cell_height - frame.height) // 2
+            ))
             canvas.save(output_dir / f"{action}-{column_index + 1:02d}.png")
 
 

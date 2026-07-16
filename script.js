@@ -428,11 +428,11 @@ function saveVisitorState() {
 
 function getVisitorAction(type, phase, side) {
   if (type === "cat") {
-    if (phase === "idle") return "sit-back";
+    if (phase === "idle") return { group: "cat-watch", action: "watch-tail" };
     if (phase === "entering") return side === "left" ? "walk-right" : "walk-left";
     return side === "left" ? "walk-left" : "walk-right";
   }
-  if (phase === "idle") return "perch";
+  if (phase === "idle") return { group: "bird-watch", action: "watch-head" };
   if (phase === "entering") return side === "left" ? "fly-right" : "fly-left";
   return side === "left" ? "fly-left" : "fly-right";
 }
@@ -440,12 +440,15 @@ function getVisitorAction(type, phase, side) {
 function setVisitorPhase(visitor, phase) {
   const type = visitor.dataset.visitorType;
   const side = visitor.dataset.side;
-  const action = getVisitorAction(type, phase, side);
+  const frameAction = getVisitorAction(type, phase, side);
+  const group = typeof frameAction === "string" ? type : frameAction.group;
+  const action = typeof frameAction === "string" ? frameAction : frameAction.action;
   visitor.classList.remove("is-entering", "is-idle", "is-leaving");
   visitor.classList.add(`is-${phase}`);
   visitor.dataset.phase = phase;
+  visitor.dataset.frameGroup = group;
   visitor.dataset.action = action;
-  visitor.querySelector("img").src = getAnimalFrame(type, action, 1);
+  visitor.querySelector("img").src = getAnimalFrame(group, action, 1);
 }
 
 function createVisitor(type, visit, phase = "idle") {
@@ -536,7 +539,7 @@ window.setInterval(() => {
   elements.visitorLayer.querySelectorAll(".rare-visitor[data-action]").forEach((visitor) => {
     const frame = (visitorFrame + Number(visitor.dataset.frameOffset || 0)) % 4 + 1;
     visitor.querySelector("img").src = getAnimalFrame(
-      visitor.dataset.visitorType,
+      visitor.dataset.frameGroup || visitor.dataset.visitorType,
       visitor.dataset.action,
       frame
     );

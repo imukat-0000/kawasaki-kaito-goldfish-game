@@ -490,13 +490,13 @@ h1 {
   width: clamp(38px, 11%, 92px);
 }
 
-.fish-pond .growth-tadpole {
-  width: clamp(42px, 13%, 108px);
+.fish-pond .goldfish.growth-tadpole {
+  width: clamp(78px, 26%, 216px);
 }
 
-.fish-pond .growth-frog {
+.fish-pond .goldfish.growth-frog {
   z-index: 3;
-  width: clamp(38px, 10%, 88px);
+  width: clamp(72px, 20%, 176px);
   animation: frog-paddle var(--duration) steps(4, end) infinite alternate;
 }
 
@@ -535,27 +535,32 @@ h1 {
 .visitor-layer {
   position: absolute;
   inset: 0;
-  z-index: 14;
+  z-index: auto;
   overflow: hidden;
   pointer-events: none;
-  --bird-top: 45%;
+  --bird-left: 76%;
+  --bird-top: 52%;
 }
 
 .game-screen[data-stage="2"] .visitor-layer,
 .game-screen[data-stage="3"] .visitor-layer {
-  --bird-top: 58%;
+  --bird-left: 75%;
+  --bird-top: 60%;
 }
 
 .game-screen[data-stage="4"] .visitor-layer {
-  --bird-top: 64%;
+  --bird-left: 74.5%;
+  --bird-top: 62.5%;
 }
 
 .game-screen[data-stage="5"] .visitor-layer {
-  --bird-top: 66%;
+  --bird-left: 74%;
+  --bird-top: 65%;
 }
 
 .game-screen[data-stage="6"] .visitor-layer {
-  --bird-top: 67%;
+  --bird-left: 74%;
+  --bird-top: 66%;
 }
 
 .rare-visitor {
@@ -573,18 +578,26 @@ h1 {
 
 .visitor-cat {
   left: 50%;
-  bottom: 9%;
-  z-index: 3;
-  width: clamp(74px, 17%, 176px);
+  bottom: 1.5%;
+  z-index: 9;
+  width: clamp(120px, 22%, 240px);
   transform: translateX(-50%);
 }
 
+.visitor-cat:not(.is-idle) {
+  width: clamp(148px, 34%, 352px);
+}
+
 .visitor-bird {
-  left: 73%;
+  left: var(--bird-left);
   top: var(--bird-top);
-  z-index: 2;
-  width: clamp(48px, 9%, 96px);
-  transform: translate(-50%, -64%);
+  z-index: 11;
+  width: clamp(88px, 14%, 152px);
+  transform: translate(-50%, -81%);
+}
+
+.visitor-bird:not(.is-idle) {
+  width: clamp(96px, 18%, 192px);
 }
 
 .visitor-cat.from-left.is-entering {
@@ -641,21 +654,21 @@ h1 {
 
 @keyframes bird-enter-left {
   from { transform: translate(-850%, -420%); }
-  to { transform: translate(-50%, -64%); }
+  to { transform: translate(-50%, -81%); }
 }
 
 @keyframes bird-enter-right {
   from { transform: translate(650%, -420%); }
-  to { transform: translate(-50%, -64%); }
+  to { transform: translate(-50%, -81%); }
 }
 
 @keyframes bird-leave-left {
-  from { transform: translate(-50%, -64%); }
+  from { transform: translate(-50%, -81%); }
   to { transform: translate(-850%, -420%); }
 }
 
 @keyframes bird-leave-right {
-  from { transform: translate(-50%, -64%); }
+  from { transform: translate(-50%, -81%); }
   to { transform: translate(650%, -420%); }
 }
 
