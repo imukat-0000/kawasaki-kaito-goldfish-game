@@ -538,29 +538,44 @@ h1 {
   z-index: auto;
   overflow: hidden;
   pointer-events: none;
-  --bird-left: 72.5%;
-  --bird-top: 24.5%;
+  --bird-left: 72.54%;
+  --bird-top: 24.53%;
 }
 
-.game-screen[data-stage="2"] .visitor-layer,
+/* Toe anchors measured against each stage's rear rim. */
+.game-screen[data-stage="0"] .visitor-layer {
+  --bird-left: 72.54%;
+  --bird-top: 24.53%;
+}
+
+.game-screen[data-stage="1"] .visitor-layer {
+  --bird-left: 72.54%;
+  --bird-top: 24.53%;
+}
+
+.game-screen[data-stage="2"] .visitor-layer {
+  --bird-left: 70.49%;
+  --bird-top: 37.54%;
+}
+
 .game-screen[data-stage="3"] .visitor-layer {
-  --bird-left: 70.5%;
-  --bird-top: 37.5%;
+  --bird-left: 70.49%;
+  --bird-top: 37.54%;
 }
 
 .game-screen[data-stage="4"] .visitor-layer {
-  --bird-left: 70%;
-  --bird-top: 44.5%;
+  --bird-left: 69.98%;
+  --bird-top: 44.53%;
 }
 
 .game-screen[data-stage="5"] .visitor-layer {
-  --bird-left: 69.5%;
-  --bird-top: 46.5%;
+  --bird-left: 69.47%;
+  --bird-top: 46.42%;
 }
 
 .game-screen[data-stage="6"] .visitor-layer {
-  --bird-left: 69.5%;
-  --bird-top: 48.5%;
+  --bird-left: 69.47%;
+  --bird-top: 48.49%;
 }
 
 .rare-visitor {
