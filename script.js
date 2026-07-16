@@ -134,13 +134,13 @@ function createFirework() {
   const rocket = document.createElement("span");
   const flash = document.createElement("span");
   const x = 16 + Math.random() * 68;
-  const y = 8 + Math.random() * 25;
+  const y = 7 + Math.random() * 18;
   const stage = Number(elements.gameScreen.dataset.stage) || 0;
   const palette = stage <= 1
     ? ["#a8322b", "#c94b2d", "#e35b32", "#f28f45"]
     : FIREWORK_COLORS;
   const color = palette[Math.floor(Math.random() * palette.length)];
-  const particleCount = 13 + Math.floor(Math.random() * 8);
+  const particleCount = 16 + Math.floor(Math.random() * 9);
   const screenScale = Math.min(1.15, Math.max(0.68, elements.gameScreen.clientWidth / 760));
   const launchDistance = Math.max(
     90,
@@ -162,7 +162,7 @@ function createFirework() {
   for (let index = 0; index < particleCount; index += 1) {
     const particle = document.createElement("span");
     const angle = (Math.PI * 2 * index) / particleCount + (Math.random() - 0.5) * 0.18;
-    const distance = (42 + Math.random() * 46) * screenScale;
+    const distance = (50 + Math.random() * 52) * screenScale;
     const particleColor = Math.random() < 0.72
       ? color
       : palette[Math.floor(Math.random() * palette.length)];
@@ -171,7 +171,7 @@ function createFirework() {
     particle.style.setProperty("--particle-x", `${Math.cos(angle) * distance}px`);
     particle.style.setProperty("--particle-y", `${Math.sin(angle) * distance}px`);
     particle.style.setProperty("--particle-color", particleColor);
-    particle.style.setProperty("--particle-size", `${3 + Math.floor(Math.random() * 3)}px`);
+    particle.style.setProperty("--particle-size", `${4 + Math.floor(Math.random() * 3)}px`);
     firework.appendChild(particle);
   }
 
@@ -181,7 +181,7 @@ function createFirework() {
 
 function scheduleFirework(initialDelay = null) {
   if (reducedMotionQuery.matches || document.hidden) return;
-  const delay = initialDelay ?? 900 + Math.random() * 1600;
+  const delay = initialDelay ?? 650 + Math.random() * 1000;
 
   fireworksTimer = window.setTimeout(() => {
     createFirework();
@@ -198,7 +198,7 @@ function stopFireworks() {
 function startFireworks() {
   stopFireworks();
   if (!reducedMotionQuery.matches && !document.hidden) {
-    scheduleFirework(350 + Math.random() * 650);
+    scheduleFirework(100 + Math.random() * 350);
   }
 }
 

@@ -123,10 +123,10 @@ h1 {
 
 .firework-rocket {
   position: absolute;
-  left: -1px;
-  top: -5px;
-  width: 3px;
-  height: 9px;
+  left: -2px;
+  top: -8px;
+  width: 4px;
+  height: 14px;
   border-right: 1px solid rgba(7, 20, 12, 0.68);
   border-left: 1px solid rgba(7, 20, 12, 0.68);
   background: var(--firework-color);
