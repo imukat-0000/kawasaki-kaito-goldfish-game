@@ -253,10 +253,10 @@ function getProgress(total) {
 }
 
 function seededPosition(index) {
-  const angle = index * 2.399963 + 0.6;
-  const radius = Math.sqrt((index + 1) / (MAX_VISIBLE_FISH + 2));
-  const x = 48 + Math.cos(angle) * radius * 42;
-  const y = 48 + Math.sin(angle) * radius * 36;
+  const angle = seededRandom(index * 17.31 + 2.47) * Math.PI * 2;
+  const radius = Math.sqrt(seededRandom(index * 29.17 + 8.91));
+  const x = 50 + Math.cos(angle) * radius * 36;
+  const y = 50 + Math.sin(angle) * radius * 30;
   return { x, y };
 }
 
