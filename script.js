@@ -8,11 +8,11 @@ const MILESTONES = [100, 500, 1000, 10000, 100000, 1000000];
 const BACKGROUNDS = [
   "assets/tub_base.png",
   "assets/backgrounds-no-static-fireworks/tub_levelup1.png",
-  "assets/backgrounds-no-static-fireworks/tub_levelup2.png",
-  "assets/backgrounds-no-static-fireworks/tub_levelup3.png",
-  "assets/backgrounds-no-static-fireworks/tub_levelup4.png",
-  "assets/backgrounds-no-static-fireworks/tub_levelup5.png",
-  "assets/backgrounds-no-static-fireworks/tub_levelup6.png"
+  "assets/backgrounds-low-water/tub_levelup2.png",
+  "assets/backgrounds-low-water/tub_levelup3.png",
+  "assets/backgrounds-low-water/tub_levelup4.png",
+  "assets/backgrounds-low-water/tub_levelup5.png",
+  "assets/backgrounds-low-water/tub_levelup6.png"
 ];
 const GOLDFISH_SPRITES = [
   "assets/goldfish_sprite.png",
@@ -26,7 +26,8 @@ const KOI_SPRITES = [
   "assets/koi_sanke.png",
   "assets/koi_gold.png"
 ];
-const MAX_VISIBLE_FISH = 72;
+const MAX_VISIBLE_GOLDFISH = 72;
+const VISIBLE_KOI_BY_STAGE = [0, 0, 0, 4, 6, 8, 10];
 const REQUEST_TIMEOUT_MS = 10000;
 const COUNTER_CACHE_KEY = "counter_last_success";
 const FIREWORK_PHASES = [
@@ -270,10 +271,10 @@ function pickSprite(sprites, seed) {
 }
 
 function renderFish(total) {
-  const count = Math.min(Math.max(Math.floor(total), 0), MAX_VISIBLE_FISH);
-  const koiProbability = total >= 1000
-    ? Math.min(0.34, 0.12 + Math.log10(total / 1000) * 0.055)
-    : 0;
+  const stage = getStage(total);
+  const goldfishCount = Math.min(Math.max(Math.floor(total), 0), MAX_VISIBLE_GOLDFISH);
+  const koiCount = VISIBLE_KOI_BY_STAGE[stage] || 0;
+  const count = goldfishCount + koiCount;
   const fragment = document.createDocumentFragment();
   elements.fishPond.replaceChildren();
   elements.fishPond.dataset.density = count <= 12
@@ -285,23 +286,17 @@ function renderFish(total) {
   for (let index = 0; index < count; index += 1) {
     const fish = document.createElement("img");
     const { x, y } = seededPosition(index);
-    const typeRoll = seededRandom(total * 0.17 + index * 19.73);
-    let isKoi = total >= 1000 && typeRoll < koiProbability;
-
-    if (total >= 1000 && count >= 2) {
-      if (index === 0) isKoi = false;
-      if (index === 1) isKoi = true;
-    }
+    const isKoi = index >= goldfishCount;
 
     const sprites = isKoi ? KOI_SPRITES : GOLDFISH_SPRITES;
     fish.className = `goldfish${isKoi ? " is-koi" : ""}`;
-    fish.src = pickSprite(sprites, total * 0.31 + index * 31.17);
+    fish.src = pickSprite(sprites, index * 31.17 + 7.3);
     fish.alt = "";
     fish.style.left = `${x}%`;
     fish.style.top = `${y}%`;
     fish.style.setProperty("--duration", `${(isKoi ? 2.4 : 1.5) + (index % 5) * 0.3}s`);
     fish.style.setProperty("--delay", `${-(index % 7) * 0.27}s`);
-    fish.style.transform = `translate(-50%, -50%) scaleX(${seededRandom(total + index * 7.7) < 0.38 ? -1 : 1})`;
+    fish.style.transform = `translate(-50%, -50%) scaleX(${seededRandom(index * 7.7 + 3.1) < 0.38 ? -1 : 1})`;
     fragment.appendChild(fish);
   }
 

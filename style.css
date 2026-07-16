@@ -428,18 +428,32 @@ h1 {
 }
 
 .game-screen[data-stage="4"] .fish-pond {
-  top: 36%;
-  height: 34%;
+  left: 25.5%;
+  top: 49%;
+  width: 49%;
+  height: 27%;
 }
 
 .game-screen[data-stage="5"] .fish-pond {
-  top: 41%;
-  height: 34%;
+  left: 26%;
+  top: 51%;
+  width: 48%;
+  height: 28%;
 }
 
 .game-screen[data-stage="6"] .fish-pond {
+  left: 26%;
+  top: 53%;
+  width: 48%;
+  height: 27%;
+}
+
+.game-screen[data-stage="2"] .fish-pond,
+.game-screen[data-stage="3"] .fish-pond {
+  left: 25%;
   top: 42%;
-  height: 36%;
+  width: 50%;
+  height: 35%;
 }
 
 .goldfish {
