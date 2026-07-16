@@ -99,6 +99,7 @@ const elements = {
   progressTrack: document.querySelector("#progressTrack"),
   progressFill: document.querySelector("#progressFill"),
   progressLabel: document.querySelector("#progressLabel"),
+  thankYou: document.querySelector("#thankYouMessage"),
   celebration: document.querySelector("#celebration"),
   milestoneLabel: document.querySelector("#milestoneLabel"),
   status: document.querySelector("#statusMessage"),
@@ -339,6 +340,22 @@ function render(data) {
   renderFish(total);
 }
 
+let thankYouTimeoutId = null;
+
+function showThankYou() {
+  if (!elements.thankYou) return;
+
+  if (thankYouTimeoutId !== null) window.clearTimeout(thankYouTimeoutId);
+  elements.thankYou.classList.remove("is-playing");
+  elements.thankYou.setAttribute("aria-hidden", "false");
+  requestAnimationFrame(() => elements.thankYou.classList.add("is-playing"));
+  thankYouTimeoutId = window.setTimeout(() => {
+    elements.thankYou.classList.remove("is-playing");
+    elements.thankYou.setAttribute("aria-hidden", "true");
+    thankYouTimeoutId = null;
+  }, 1900);
+}
+
 function maybeCelebrate(total, force = false) {
   const reachedMilestone = [...MILESTONES].reverse().find((milestone) => total >= milestone);
   if (!reachedMilestone) return;
@@ -427,6 +444,7 @@ async function initialize() {
     const data = await fetchCounter(requestSource);
     if (!data.demo) cacheCounter(data);
     render(data);
+    if (shouldCount && !data.demo) showThankYou();
     const forcePreviewEffect = data.preview
       && new URLSearchParams(window.location.search).get("effect") === "1";
     if (!data.preview || forcePreviewEffect) {

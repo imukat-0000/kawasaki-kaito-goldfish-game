@@ -30,6 +30,7 @@ function saveTestCounter() {
 }
 
 function applyTestCounter(next, playEffect = true) {
+  const previousTotal = testCounter.total;
   const previousStage = getStage(testCounter.total);
   const qr = Math.max(0, Math.floor(Number(next.qr) || 0));
   const sns = Math.max(0, Math.floor(Number(next.sns) || 0));
@@ -37,6 +38,11 @@ function applyTestCounter(next, playEffect = true) {
   saveTestCounter();
   render(testCounter);
   syncTestInputs();
+
+  if (testCounter.total === previousTotal + 1) {
+    document.querySelector("#gameScreen").scrollIntoView({ behavior: "smooth", block: "center" });
+    showThankYou();
+  }
 
   if (playEffect && getStage(testCounter.total) > previousStage) {
     maybeCelebrate(testCounter.total, true);
