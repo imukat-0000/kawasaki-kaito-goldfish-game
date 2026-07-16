@@ -538,29 +538,29 @@ h1 {
   z-index: auto;
   overflow: hidden;
   pointer-events: none;
-  --bird-left: 76%;
-  --bird-top: 54%;
+  --bird-left: 72.5%;
+  --bird-top: 28.5%;
 }
 
 .game-screen[data-stage="2"] .visitor-layer,
 .game-screen[data-stage="3"] .visitor-layer {
-  --bird-left: 75%;
-  --bird-top: 62%;
+  --bird-left: 70.5%;
+  --bird-top: 41.5%;
 }
 
 .game-screen[data-stage="4"] .visitor-layer {
-  --bird-left: 74.5%;
-  --bird-top: 64.5%;
+  --bird-left: 70%;
+  --bird-top: 48.5%;
 }
 
 .game-screen[data-stage="5"] .visitor-layer {
-  --bird-left: 74%;
-  --bird-top: 67%;
+  --bird-left: 69.5%;
+  --bird-top: 50.5%;
 }
 
 .game-screen[data-stage="6"] .visitor-layer {
-  --bird-left: 74%;
-  --bird-top: 68%;
+  --bird-left: 69.5%;
+  --bird-top: 52.5%;
 }
 
 .rare-visitor {
