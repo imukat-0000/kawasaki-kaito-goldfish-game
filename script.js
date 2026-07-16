@@ -150,6 +150,19 @@ function isLocalDemo() {
   return isLocalPreview && new URLSearchParams(window.location.search).has("demo");
 }
 
+function getSampleTotal() {
+  const searchParams = new URLSearchParams(window.location.search);
+  if (!searchParams.has("sample")) return null;
+
+  const value = Number(searchParams.get("sample"));
+  const allowedTotals = [0, ...MILESTONES];
+  return allowedTotals.includes(value) ? value : null;
+}
+
+function isSamplePreview() {
+  return getSampleTotal() !== null;
+}
+
 function normalizeCounterData(data) {
   const values = [data?.qr, data?.sns, data?.total];
   if (!values.every((value) => Number.isFinite(value) && value >= 0)) {
@@ -342,6 +355,17 @@ function maybeCelebrate(total) {
 
 async function fetchCounter(source) {
   const searchParams = new URLSearchParams(window.location.search);
+  const sampleTotal = getSampleTotal();
+
+  if (sampleTotal !== null) {
+    return {
+      qr: Math.floor(sampleTotal * 0.6),
+      sns: Math.ceil(sampleTotal * 0.4),
+      total: sampleTotal,
+      demo: true,
+      preview: true
+    };
+  }
 
   if (isLocalDemo()) {
     const requestedTotal = Number(searchParams.get("demo"));
@@ -389,9 +413,11 @@ async function initialize() {
   const requestSource = shouldCount ? source : null;
 
   // Reserve before the request so simultaneous tabs cannot both increment.
-  if (shouldCount && !isLocalDemo()) storeFlag(dailyKey);
+  if (shouldCount && !isLocalDemo() && !isSamplePreview()) storeFlag(dailyKey);
 
-  elements.sourceNote.textContent = source === "qr"
+  elements.sourceNote.textContent = isSamplePreview()
+    ? "サンプル表示"
+    : source === "qr"
     ? "会場QRから参加"
     : source === "sns"
       ? "SNSから参加"
@@ -401,7 +427,7 @@ async function initialize() {
     const data = await fetchCounter(requestSource);
     if (!data.demo) cacheCounter(data);
     render(data);
-    maybeCelebrate(Number(data.total) || 0);
+    if (!data.preview) maybeCelebrate(Number(data.total) || 0);
     elements.status.classList.remove("is-error", "is-stale");
     elements.status.classList.add("is-hidden");
   } catch (error) {

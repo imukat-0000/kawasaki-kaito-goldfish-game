@@ -113,6 +113,12 @@ http://localhost:8000/?demo=1000
 http://localhost:8000/?demo=1000000
 ```
 
+公開環境では共有専用の `?sample=` を使用できる。節目の値だけを受け付け、API通信・加算・節目到達演出は行わない。
+
+```text
+https://imukat-0000.github.io/kawasaki-kaito-goldfish-game/?sample=1000000
+```
+
 確認後はローカルサーバーとブラウザの確認タブを終了し、不要な処理を残さない。
 
 ## 公開手順

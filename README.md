@@ -33,6 +33,12 @@ http://localhost:8000/?demo=1000
 http://localhost:8000/?demo=1000000
 ```
 
+GitHub Pagesなど公開環境でステージ見本を共有する場合は `?sample=節目` を使用します。`sample` は `0 / 100 / 500 / 1000 / 10000 / 100000 / 1000000` のみ有効で、カウンターAPIへの接続やアクセス数の加算は行いません。
+
+```text
+https://example.github.io/project/?sample=1000000
+```
+
 通信障害の回帰確認には `tests/browser-harness.html` を使用します。`mode` は `success`、`failure`、`failure-cache`、`invalid`、`timeout-cache`、`storage-error` に対応し、`reset=1` で試験用の保存値を初期化します。
 
 ```text
