@@ -29,10 +29,47 @@ const KOI_SPRITES = [
 const MAX_VISIBLE_FISH = 72;
 const REQUEST_TIMEOUT_MS = 10000;
 const COUNTER_CACHE_KEY = "counter_last_success";
-const FIREWORK_COLORS = ["#f1c85b", "#fff1a5", "#c94b2d", "#d2d77a", "#f28f45"];
+const BACKGROUND_FIREWORKS = [
+  [],
+  [
+    { x: 18, y: 15, size: 7 }, { x: 70, y: 6, size: 4 },
+    { x: 84, y: 15, size: 7 }
+  ],
+  [
+    { x: 17, y: 18, size: 5 }, { x: 25, y: 11, size: 8 },
+    { x: 56, y: 4, size: 4 }, { x: 76, y: 11, size: 8 },
+    { x: 85, y: 18, size: 5 }
+  ],
+  [
+    { x: 13, y: 7, size: 7 }, { x: 23, y: 7, size: 8 },
+    { x: 34, y: 7, size: 8 }, { x: 50, y: 7, size: 8 },
+    { x: 62, y: 7, size: 8 }, { x: 73, y: 7, size: 8 },
+    { x: 88, y: 7, size: 7 }, { x: 18, y: 18, size: 7 },
+    { x: 29, y: 17, size: 7 }, { x: 85, y: 18, size: 7 }
+  ],
+  [
+    { x: 14, y: 7, size: 7 }, { x: 23, y: 7, size: 8 },
+    { x: 35, y: 7, size: 8 }, { x: 52, y: 7, size: 8 },
+    { x: 63, y: 6, size: 8 }, { x: 76, y: 7, size: 8 },
+    { x: 89, y: 6, size: 7 }, { x: 18, y: 18, size: 7 },
+    { x: 29, y: 17, size: 7 }, { x: 75, y: 17, size: 7 },
+    { x: 85, y: 18, size: 7 }, { x: 94, y: 14, size: 5 }
+  ],
+  [
+    { x: 15, y: 6, size: 7 }, { x: 26, y: 6, size: 7 },
+    { x: 40, y: 9, size: 6 }, { x: 54, y: 8, size: 6 },
+    { x: 66, y: 6, size: 7 }, { x: 79, y: 7, size: 7 },
+    { x: 94, y: 13, size: 5 }
+  ],
+  [
+    { x: 22, y: 5, size: 7 }, { x: 32, y: 5, size: 8 },
+    { x: 40, y: 11, size: 6 }, { x: 59, y: 5, size: 8 },
+    { x: 68, y: 5, size: 8 }, { x: 77, y: 11, size: 7 },
+    { x: 87, y: 6, size: 7 }, { x: 15, y: 13, size: 5 },
+    { x: 49, y: 13, size: 5 }, { x: 93, y: 14, size: 5 }
+  ]
+];
 const fallbackStorage = new Map();
-const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-let fireworksTimer = null;
 
 const elements = {
   gameScreen: document.querySelector("#gameScreen"),
@@ -127,94 +164,39 @@ function getStage(total) {
   return MILESTONES.filter((milestone) => total >= milestone).length;
 }
 
-function createFirework() {
-  if (!elements.fireworks || reducedMotionQuery.matches || document.hidden) return;
+function renderBackgroundFireworks(stage) {
+  const fireworks = BACKGROUND_FIREWORKS[stage] || [];
+  const fragment = document.createDocumentFragment();
+  const baseDuration = Math.max(3.8, 7.2 - stage * 0.55);
 
-  const firework = document.createElement("div");
-  const rocket = document.createElement("span");
-  const flash = document.createElement("span");
-  const x = 16 + Math.random() * 68;
-  const y = 7 + Math.random() * 18;
-  const stage = Number(elements.gameScreen.dataset.stage) || 0;
-  const palette = stage <= 1
-    ? ["#a8322b", "#c94b2d", "#e35b32", "#f28f45"]
-    : FIREWORK_COLORS;
-  const color = palette[Math.floor(Math.random() * palette.length)];
-  const particleCount = 16 + Math.floor(Math.random() * 9);
-  const screenScale = Math.min(1.15, Math.max(0.68, elements.gameScreen.clientWidth / 760));
-  const launchDistance = Math.max(
-    90,
-    Math.round(elements.gameScreen.clientHeight * (0.62 - y / 100))
-  );
-  const burstDelay = 620 + Math.floor(Math.random() * 180);
+  elements.fireworks.replaceChildren();
+  elements.fireworks.dataset.count = String(fireworks.length);
+  elements.fireworks.style.setProperty("--bloom-scale", String(1.04 + stage * 0.008));
+  elements.fireworks.style.setProperty("--bloom-brightness", String(1.36 + stage * 0.05));
 
-  firework.className = "firework";
-  firework.style.left = `${x}%`;
-  firework.style.top = `${y}%`;
-  firework.style.setProperty("--firework-color", color);
-  firework.style.setProperty("--launch-distance", `${launchDistance}px`);
-  firework.style.setProperty("--burst-delay", `${burstDelay}ms`);
+  fireworks.forEach(({ x, y, size }, index) => {
+    const firework = document.createElement("span");
+    const image = document.createElement("span");
+    const diameter = size * 2;
+    const duration = baseDuration + (index % 3) * 0.55 + Math.random() * 0.35;
+    const stagger = stage <= 2 ? 1.45 : stage <= 4 ? 0.82 : 0.58;
+    const delay = index * stagger + stage * 0.37 + Math.random() * 1.2;
 
-  rocket.className = "firework-rocket";
-  flash.className = "firework-flash";
-  firework.append(rocket, flash);
+    firework.className = "background-firework";
+    firework.style.setProperty("--burst-left", `${x - size}%`);
+    firework.style.setProperty("--burst-top", `${y - size}%`);
+    firework.style.setProperty("--burst-diameter", `${diameter}%`);
+    firework.style.setProperty("--burst-duration", `${duration}s`);
+    firework.style.setProperty("--burst-delay", `${-delay}s`);
+    image.className = "background-firework-image";
+    image.style.setProperty("--image-scale", `${10000 / diameter}%`);
+    image.style.setProperty("--image-left", `${-((x - size) * 100) / diameter}%`);
+    image.style.setProperty("--image-top", `${-((y - size) * 100) / diameter}%`);
+    firework.appendChild(image);
+    fragment.appendChild(firework);
+  });
 
-  for (let index = 0; index < particleCount; index += 1) {
-    const particle = document.createElement("span");
-    const angle = (Math.PI * 2 * index) / particleCount + (Math.random() - 0.5) * 0.18;
-    const distance = (50 + Math.random() * 52) * screenScale;
-    const particleColor = Math.random() < 0.72
-      ? color
-      : palette[Math.floor(Math.random() * palette.length)];
-
-    particle.className = "firework-particle";
-    particle.style.setProperty("--particle-x", `${Math.cos(angle) * distance}px`);
-    particle.style.setProperty("--particle-y", `${Math.sin(angle) * distance}px`);
-    particle.style.setProperty("--particle-color", particleColor);
-    particle.style.setProperty("--particle-size", `${4 + Math.floor(Math.random() * 3)}px`);
-    firework.appendChild(particle);
-  }
-
-  elements.fireworks.appendChild(firework);
-  window.setTimeout(() => firework.remove(), burstDelay + 1800);
-}
-
-function scheduleFirework(initialDelay = null) {
-  if (reducedMotionQuery.matches || document.hidden) return;
-  const delay = initialDelay ?? 650 + Math.random() * 1000;
-
-  fireworksTimer = window.setTimeout(() => {
-    createFirework();
-    scheduleFirework();
-  }, delay);
-}
-
-function stopFireworks() {
-  window.clearTimeout(fireworksTimer);
-  fireworksTimer = null;
-  elements.fireworks?.replaceChildren();
-}
-
-function startFireworks() {
-  stopFireworks();
-  if (!reducedMotionQuery.matches && !document.hidden) {
-    scheduleFirework(100 + Math.random() * 350);
-  }
-}
-
-function setupFireworks() {
-  const updateFireworks = () => {
-    if (reducedMotionQuery.matches || document.hidden) stopFireworks();
-    else startFireworks();
-  };
-
-  if (typeof reducedMotionQuery.addEventListener === "function") {
-    reducedMotionQuery.addEventListener("change", updateFireworks);
-  } else {
-    reducedMotionQuery.addListener(updateFireworks);
-  }
-  document.addEventListener("visibilitychange", updateFireworks);
-  updateFireworks();
+  elements.fireworks.appendChild(fragment);
 }
 
 function getProgress(total) {
@@ -304,6 +286,7 @@ function render(data) {
   elements.scene.src = background;
   elements.gameScreen.dataset.stage = String(stage);
   elements.gameScreen.style.setProperty("--scene-image", `url("${background}")`);
+  renderBackgroundFireworks(stage);
 
   elements.progressLabel.textContent = progress.nextMilestone
     ? `${total.toLocaleString("ja-JP")} / ${progress.nextMilestone.toLocaleString("ja-JP")}`
@@ -416,4 +399,3 @@ async function initialize() {
 }
 
 initialize();
-setupFireworks();
