@@ -7,8 +7,8 @@
   <meta name="description" content="金魚育成ゲームのカウンター動作テスト">
   <title>カウンターテスト | 金魚育成ゲーム</title>
   <link rel="icon" href="assets/goldfish_sprite.png" type="image/png">
-  <link rel="stylesheet" href="style.css?v=20260716-lowwater1">
-  <link rel="stylesheet" href="tests/counter-test.css?v=20260716-1">
+  <link rel="stylesheet" href="style.css?v=20260716-growth1">
+  <link rel="stylesheet" href="tests/counter-test.css?v=20260716-growth1">
   <script>
     const params = new URLSearchParams(window.location.search);
     if (!params.has("sample")) {
@@ -41,7 +41,7 @@
         <div class="scanlines" aria-hidden="true"></div>
 
         <div class="hud hud-total">
-          <span class="hud-label">TOTAL FISH</span>
+          <span class="hud-label">GROWTH COUNT</span>
           <strong id="totalCount">0</strong>
         </div>
         <div class="hud hud-level">
@@ -54,6 +54,7 @@
         </div>
 
         <div class="fish-pond" id="fishPond" aria-hidden="true"></div>
+        <div class="visitor-layer" id="visitorLayer" aria-hidden="true"></div>
 
         <p class="thank-you-message" id="thankYouMessage" role="status" aria-live="polite" aria-hidden="true">Thank you !</p>
 
@@ -73,10 +74,10 @@
 
         <div class="progress-hud">
           <div class="progress-copy">
-            <span>NEXT FESTIVAL</span>
+            <span>NEXT EVOLUTION</span>
             <strong id="progressLabel">0 / 100</strong>
           </div>
-          <div class="progress-track" role="progressbar" aria-label="次の節目までの進捗" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressTrack">
+          <div class="progress-track" role="progressbar" aria-label="次の進化までの成長" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressTrack">
             <div class="progress-fill" id="progressFill"></div>
           </div>
         </div>
@@ -118,6 +119,25 @@
         <button type="button" data-test-total="100000">100,000</button>
         <button type="button" data-test-total="1000000">1,000,000</button>
       </div>
+
+      <div class="growth-test-row" aria-label="成長見本">
+        <button type="button" data-growth-total="0">START</button>
+        <button type="button" data-growth-total="1">金魚 1</button>
+        <button type="button" data-growth-total="5">金魚 5</button>
+        <button type="button" data-growth-total="9">金魚 9</button>
+        <button type="button" data-growth-total="10">鯉へ進化</button>
+        <button type="button" data-growth-total="11">おたま 1</button>
+        <button type="button" data-growth-total="15">おたま 5</button>
+        <button type="button" data-growth-total="19">カエル前</button>
+        <button type="button" data-growth-total="20">カエル</button>
+        <button type="button" data-growth-total="32">逃走</button>
+      </div>
+
+      <div class="visitor-test-row" aria-label="レアキャラクター見本">
+        <button type="button" data-force-visitor="cat">猫を呼ぶ</button>
+        <button type="button" data-force-visitor="bird">スズメを呼ぶ</button>
+        <button type="button" id="clearTestVisitors">レアキャラ退場</button>
+      </div>
     </section>
 
     <footer class="campaign-footer">
@@ -126,7 +146,7 @@
     </footer>
   </main>
 
-  <script src="script.js?v=20260716-lowwater1"></script>
-  <script src="tests/counter-test.js?v=20260716-thankyou1"></script>
+  <script src="script.js?v=20260716-growth1"></script>
+  <script src="tests/counter-test.js?v=20260716-growth1"></script>
 </body>
 </html>

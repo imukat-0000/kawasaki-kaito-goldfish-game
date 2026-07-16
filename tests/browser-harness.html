@@ -6,7 +6,7 @@
   <base href="../">
   <title>Goldfish game browser test harness</title>
   <link rel="icon" href="assets/goldfish_sprite.png" type="image/png">
-  <link rel="stylesheet" href="../style.css?v=20260716-lowwater1">
+  <link rel="stylesheet" href="../style.css?v=20260716-growth1">
   <script>
     const testParams = new URLSearchParams(window.location.search);
     const testMode = testParams.get("mode") || "success";
@@ -82,10 +82,11 @@
         <img class="scene" id="scene" src="../assets/tub_base.png" alt="テスト用の金魚桶">
         <div class="ambient-scene" aria-hidden="true"></div>
         <div class="background-fireworks" id="fireworks" aria-hidden="true"></div>
-        <div class="hud hud-total"><span class="hud-label">TOTAL FISH</span><strong id="totalCount">---</strong></div>
+        <div class="hud hud-total"><span class="hud-label">GROWTH COUNT</span><strong id="totalCount">---</strong></div>
         <div class="hud hud-level"><span class="hud-label">STAGE</span><strong id="stageLabel">01</strong></div>
         <div class="source-breakdown"><span>QR <strong id="qrCount">---</strong></span><span>SNS <strong id="snsCount">---</strong></span></div>
         <div class="fish-pond" id="fishPond" aria-hidden="true"></div>
+        <div class="visitor-layer" id="visitorLayer" aria-hidden="true"></div>
         <p class="thank-you-message" id="thankYouMessage" role="status" aria-live="polite" aria-hidden="true">Thank you !</p>
         <div class="celebration" id="celebration" aria-hidden="true">
           <div class="celebration-banner"><span id="milestoneLabel">100 FISH!</span></div>
@@ -101,14 +102,14 @@
           </div>
         </div>
         <div class="progress-hud">
-          <div class="progress-copy"><span>NEXT FESTIVAL</span><strong id="progressLabel">--- / ---</strong></div>
-          <div class="progress-track" role="progressbar" aria-label="次の節目までの進捗" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressTrack"><div class="progress-fill" id="progressFill"></div></div>
+          <div class="progress-copy"><span>NEXT EVOLUTION</span><strong id="progressLabel">--- / ---</strong></div>
+          <div class="progress-track" role="progressbar" aria-label="次の進化までの成長" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressTrack"><div class="progress-fill" id="progressFill"></div></div>
         </div>
         <p class="status-message" id="statusMessage" role="status">CONNECTING...</p>
       </div>
     </section>
     <footer class="campaign-footer"><p>browser test</p><p class="source-note" id="sourceNote">通常アクセス</p></footer>
   </main>
-  <script src="../script.js?v=20260716-lowwater1"></script>
+  <script src="../script.js?v=20260716-growth1"></script>
 </body>
 </html>

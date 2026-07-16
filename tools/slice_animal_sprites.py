@@ -27,16 +27,22 @@ SHEETS = {
         "rows": ["hop-left", "hop-right", "hop-front", "hop-away", "escape-away"],
         "columns": 4,
     },
+    "frog-swim": {
+        "file": "frog-swim-sprite-sheet.png",
+        "rows": ["swim-left", "swim-right", "swim-front", "swim-away"],
+        "columns": 4,
+        "color_only": True,
+    },
 }
 
 
-def split_grid(name, config):
-    source = Image.open(ASSET_DIR / config["file"]).convert("RGBA")
+def split_grid(name, config, asset_dir):
+    source = Image.open(asset_dir / config["file"]).convert("RGBA")
     rows = config["rows"]
     columns = config["columns"]
     cell_width = (source.width + columns - 1) // columns
     cell_height = (source.height + len(rows) - 1) // len(rows)
-    output_dir = ASSET_DIR / "frames" / name
+    output_dir = asset_dir / "frames" / name
     output_dir.mkdir(parents=True, exist_ok=True)
 
     for row_index, action in enumerate(rows):
@@ -51,11 +57,11 @@ def split_grid(name, config):
             canvas.save(output_dir / f"{action}-{column_index + 1:02d}.png")
 
 
-def split_metamorphosis():
-    source = Image.open(ASSET_DIR / "tadpole-to-frog.png").convert("RGBA")
+def split_metamorphosis(asset_dir):
+    source = Image.open(asset_dir / "tadpole-to-frog.png").convert("RGBA")
     columns = 8
     cell_width = (source.width + columns - 1) // columns
-    output_dir = ASSET_DIR / "frames" / "metamorphosis"
+    output_dir = asset_dir / "frames" / "metamorphosis"
     output_dir.mkdir(parents=True, exist_ok=True)
 
     for index in range(columns):
@@ -67,7 +73,9 @@ def split_metamorphosis():
         canvas.save(output_dir / f"frame-{index + 1:02d}.png")
 
 
-for sheet_name, sheet_config in SHEETS.items():
-    split_grid(sheet_name, sheet_config)
-
-split_metamorphosis()
+for variant_dir in [ASSET_DIR, ASSET_DIR / "color-v2"]:
+    for sheet_name, sheet_config in SHEETS.items():
+        if sheet_config.get("color_only") and variant_dir == ASSET_DIR:
+            continue
+        split_grid(sheet_name, sheet_config, variant_dir)
+    split_metamorphosis(variant_dir)

@@ -29,17 +29,18 @@ function saveTestCounter() {
   }
 }
 
-function applyTestCounter(next, playEffect = true) {
+function applyTestCounter(next, playEffect = true, simulateCount = true) {
   const previousTotal = testCounter.total;
   const previousStage = getStage(testCounter.total);
   const qr = Math.max(0, Math.floor(Number(next.qr) || 0));
   const sns = Math.max(0, Math.floor(Number(next.sns) || 0));
   testCounter = { qr, sns, total: qr + sns };
   saveTestCounter();
-  render(testCounter);
+  const countAdvanced = simulateCount && testCounter.total === previousTotal + 1;
+  render(testCounter, { countAdvanced, previousTotal });
   syncTestInputs();
 
-  if (testCounter.total === previousTotal + 1) {
+  if (countAdvanced) {
     document.querySelector("#gameScreen").scrollIntoView({ behavior: "smooth", block: "center" });
     showThankYou();
   }
@@ -49,10 +50,10 @@ function applyTestCounter(next, playEffect = true) {
   }
 }
 
-function setTestTotal(total, playEffect = true) {
+function setTestTotal(total, playEffect = true, simulateCount = false) {
   const normalizedTotal = Math.max(0, Math.floor(Number(total) || 0));
   const qr = Math.floor(normalizedTotal * 0.6);
-  applyTestCounter({ qr, sns: normalizedTotal - qr }, playEffect);
+  applyTestCounter({ qr, sns: normalizedTotal - qr }, playEffect, simulateCount);
 }
 
 document.querySelectorAll("[data-add-qr]").forEach((button) => {
@@ -78,6 +79,19 @@ document.querySelectorAll("[data-test-total]").forEach((button) => {
   button.addEventListener("click", () => setTestTotal(button.dataset.testTotal));
 });
 
+document.querySelectorAll("[data-growth-total]").forEach((button) => {
+  button.addEventListener("click", () => setTestTotal(button.dataset.growthTotal, false));
+});
+
+document.querySelectorAll("[data-force-visitor]").forEach((button) => {
+  button.addEventListener("click", () => {
+    forceVisitorForTest(button.dataset.forceVisitor, testCounter.total);
+    document.querySelector("#gameScreen").scrollIntoView({ behavior: "smooth", block: "center" });
+  });
+});
+
+document.querySelector("#clearTestVisitors").addEventListener("click", () => clearVisitorsForTest());
+
 document.querySelector("#nextMilestoneButton").addEventListener("click", () => {
   const nextMilestone = MILESTONES.find((milestone) => milestone > testCounter.total);
   setTestTotal(nextMilestone || MILESTONES[MILESTONES.length - 1]);
@@ -90,6 +104,7 @@ document.querySelector("#resetTestButton").addEventListener("click", () => {
   } catch (error) {
     // The in-memory reset still succeeds.
   }
+  clearVisitorsForTest(true);
   render(testCounter);
   syncTestInputs();
 });

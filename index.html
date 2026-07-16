@@ -7,7 +7,7 @@
   <meta name="description" content="河﨑海斗 夏季キャンペーン 金魚育成ゲーム">
   <title>河﨑海斗 | 金魚育成ゲーム</title>
   <link rel="icon" href="assets/goldfish_sprite.png" type="image/png">
-  <link rel="stylesheet" href="style.css?v=20260716-lowwater1">
+  <link rel="stylesheet" href="style.css?v=20260716-growth1">
 </head>
 <body>
   <main class="page-shell">
@@ -34,7 +34,7 @@
         <div class="scanlines" aria-hidden="true"></div>
 
         <div class="hud hud-total">
-          <span class="hud-label">TOTAL FISH</span>
+          <span class="hud-label">GROWTH COUNT</span>
           <strong id="totalCount">---</strong>
         </div>
 
@@ -49,6 +49,7 @@
         </div>
 
         <div class="fish-pond" id="fishPond" aria-hidden="true"></div>
+        <div class="visitor-layer" id="visitorLayer" aria-hidden="true"></div>
 
         <p class="thank-you-message" id="thankYouMessage" role="status" aria-live="polite" aria-hidden="true">Thank you !</p>
 
@@ -68,10 +69,10 @@
 
         <div class="progress-hud">
           <div class="progress-copy">
-            <span>NEXT FESTIVAL</span>
+            <span>NEXT EVOLUTION</span>
             <strong id="progressLabel">--- / ---</strong>
           </div>
-          <div class="progress-track" role="progressbar" aria-label="次の節目までの進捗" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressTrack">
+          <div class="progress-track" role="progressbar" aria-label="次の進化までの成長" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressTrack">
             <div class="progress-fill" id="progressFill"></div>
           </div>
         </div>
@@ -86,6 +87,6 @@
     </footer>
   </main>
 
-  <script src="script.js?v=20260716-lowwater1"></script>
+  <script src="script.js?v=20260716-growth1"></script>
 </body>
 </html>

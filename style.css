@@ -485,10 +485,178 @@ h1 {
   filter: drop-shadow(3px 3px 0 rgba(7, 20, 12, 0.65));
 }
 
+.fish-pond .growth-active {
+  z-index: 4;
+  width: clamp(38px, 11%, 92px);
+}
+
+.fish-pond .growth-tadpole {
+  width: clamp(42px, 13%, 108px);
+}
+
+.fish-pond .growth-frog {
+  z-index: 3;
+  width: clamp(38px, 10%, 88px);
+  animation: frog-paddle var(--duration) steps(4, end) infinite alternate;
+}
+
+.fish-pond .growth-frog.is-escaping.escape-left {
+  animation: frog-escape-left 2.8s steps(10, end) both;
+}
+
+.fish-pond .growth-frog.is-escaping.escape-right {
+  animation: frog-escape-right 2.8s steps(10, end) both;
+}
+
 @keyframes swim {
   0% { translate: -5px 0; rotate: -4deg; }
   50% { translate: 2px -3px; rotate: 3deg; }
   100% { translate: 7px 2px; rotate: -2deg; }
+}
+
+@keyframes frog-paddle {
+  0% { translate: -4px 2px; rotate: -3deg; }
+  50% { translate: 1px -4px; rotate: 2deg; }
+  100% { translate: 5px 1px; rotate: 4deg; }
+}
+
+@keyframes frog-escape-left {
+  0% { translate: 0 0; opacity: 1; }
+  70% { translate: -210% -25%; opacity: 1; }
+  100% { translate: -420% -90%; opacity: 0; }
+}
+
+@keyframes frog-escape-right {
+  0% { translate: 0 0; opacity: 1; }
+  70% { translate: 210% -25%; opacity: 1; }
+  100% { translate: 420% -90%; opacity: 0; }
+}
+
+.visitor-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 14;
+  overflow: hidden;
+  pointer-events: none;
+  --bird-top: 45%;
+}
+
+.game-screen[data-stage="2"] .visitor-layer,
+.game-screen[data-stage="3"] .visitor-layer {
+  --bird-top: 58%;
+}
+
+.game-screen[data-stage="4"] .visitor-layer {
+  --bird-top: 64%;
+}
+
+.game-screen[data-stage="5"] .visitor-layer {
+  --bird-top: 66%;
+}
+
+.game-screen[data-stage="6"] .visitor-layer {
+  --bird-top: 67%;
+}
+
+.rare-visitor {
+  position: absolute;
+  pointer-events: none;
+}
+
+.rare-visitor img {
+  display: block;
+  width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+  filter: drop-shadow(3px 3px 0 rgba(7, 20, 12, 0.65));
+}
+
+.visitor-cat {
+  left: 50%;
+  bottom: 9%;
+  z-index: 3;
+  width: clamp(74px, 17%, 176px);
+  transform: translateX(-50%);
+}
+
+.visitor-bird {
+  left: 73%;
+  top: var(--bird-top);
+  z-index: 2;
+  width: clamp(48px, 9%, 96px);
+  transform: translate(-50%, -64%);
+}
+
+.visitor-cat.from-left.is-entering {
+  animation: cat-enter-left 2.7s steps(12, end) both;
+}
+
+.visitor-cat.from-right.is-entering {
+  animation: cat-enter-right 2.7s steps(12, end) both;
+}
+
+.visitor-cat.from-left.is-leaving {
+  animation: cat-leave-left 2.7s steps(12, end) both;
+}
+
+.visitor-cat.from-right.is-leaving {
+  animation: cat-leave-right 2.7s steps(12, end) both;
+}
+
+.visitor-bird.from-left.is-entering {
+  animation: bird-enter-left 2.1s steps(12, end) both;
+}
+
+.visitor-bird.from-right.is-entering {
+  animation: bird-enter-right 2.1s steps(12, end) both;
+}
+
+.visitor-bird.from-left.is-leaving {
+  animation: bird-leave-left 2.1s steps(12, end) both;
+}
+
+.visitor-bird.from-right.is-leaving {
+  animation: bird-leave-right 2.1s steps(12, end) both;
+}
+
+@keyframes cat-enter-left {
+  from { transform: translateX(-520%); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes cat-enter-right {
+  from { transform: translateX(420%); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes cat-leave-left {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(-520%); }
+}
+
+@keyframes cat-leave-right {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(420%); }
+}
+
+@keyframes bird-enter-left {
+  from { transform: translate(-850%, -420%); }
+  to { transform: translate(-50%, -64%); }
+}
+
+@keyframes bird-enter-right {
+  from { transform: translate(650%, -420%); }
+  to { transform: translate(-50%, -64%); }
+}
+
+@keyframes bird-leave-left {
+  from { transform: translate(-50%, -64%); }
+  to { transform: translate(-850%, -420%); }
+}
+
+@keyframes bird-leave-right {
+  from { transform: translate(-50%, -64%); }
+  to { transform: translate(650%, -420%); }
 }
 
 .thank-you-message {
@@ -787,6 +955,7 @@ h1 {
 
 @media (prefers-reduced-motion: reduce) {
   .goldfish,
+  .rare-visitor,
   .bonodori-drummer,
   .bonodori-dancer,
   .ambient-object {

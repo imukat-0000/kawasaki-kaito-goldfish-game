@@ -26,8 +26,17 @@ const KOI_SPRITES = [
   "assets/koi_sanke.png",
   "assets/koi_gold.png"
 ];
-const MAX_VISIBLE_GOLDFISH = 72;
-const VISIBLE_KOI_BY_STAGE = [0, 0, 0, 4, 6, 8, 10];
+const GROWTH_CYCLE_LENGTH = 10;
+const MAX_VISIBLE_KOI = 24;
+const FROG_STAY_COUNTS = 12;
+const ANIMAL_FRAME_ROOT = "assets/animal-sprites/color-v2/frames";
+const VISITOR_STORAGE_KEY = document.body.classList.contains("test-page")
+  ? "growth_game_visitors_test_v1"
+  : "growth_game_visitors_v1";
+const VISITOR_CONFIG = {
+  cat: { chance: 0.012, minStay: 5, maxStay: 9 },
+  bird: { chance: 0.016, minStay: 4, maxStay: 8 }
+};
 const REQUEST_TIMEOUT_MS = 10000;
 const COUNTER_CACHE_KEY = "counter_last_success";
 const FIREWORK_PHASES = [
@@ -93,6 +102,7 @@ const elements = {
   scene: document.querySelector("#scene"),
   fireworks: document.querySelector("#fireworks"),
   fishPond: document.querySelector("#fishPond"),
+  visitorLayer: document.querySelector("#visitorLayer"),
   total: document.querySelector("#totalCount"),
   qr: document.querySelector("#qrCount"),
   sns: document.querySelector("#snsCount"),
@@ -237,22 +247,6 @@ function renderBackgroundFireworks(stage) {
   elements.fireworks.appendChild(fragment);
 }
 
-function getProgress(total) {
-  const stage = getStage(total);
-  const previousMilestone = stage === 0 ? 0 : MILESTONES[stage - 1];
-  const nextMilestone = MILESTONES[stage] || null;
-
-  if (!nextMilestone) {
-    return { percent: 100, previousMilestone, nextMilestone: null };
-  }
-
-  return {
-    percent: ((total - previousMilestone) / (nextMilestone - previousMilestone)) * 100,
-    previousMilestone,
-    nextMilestone
-  };
-}
-
 function seededPosition(index) {
   const angle = seededRandom(index * 17.31 + 2.47) * Math.PI * 2;
   const radius = Math.sqrt(seededRandom(index * 29.17 + 8.91));
@@ -270,45 +264,291 @@ function pickSprite(sprites, seed) {
   return sprites[Math.floor(seededRandom(seed) * sprites.length)];
 }
 
-function renderFish(total) {
-  const stage = getStage(total);
-  const goldfishCount = Math.min(Math.max(Math.floor(total), 0), MAX_VISIBLE_GOLDFISH);
-  const koiCount = VISIBLE_KOI_BY_STAGE[stage] || 0;
-  const count = goldfishCount + koiCount;
-  const fragment = document.createDocumentFragment();
-  elements.fishPond.replaceChildren();
-  elements.fishPond.dataset.density = count <= 12
-    ? "sparse"
-    : count <= 36
-      ? "medium"
-      : "dense";
-
-  for (let index = 0; index < count; index += 1) {
-    const fish = document.createElement("img");
-    const { x, y } = seededPosition(index);
-    const isKoi = index >= goldfishCount;
-
-    const sprites = isKoi ? KOI_SPRITES : GOLDFISH_SPRITES;
-    fish.className = `goldfish${isKoi ? " is-koi" : ""}`;
-    fish.src = pickSprite(sprites, index * 31.17 + 7.3);
-    fish.alt = "";
-    fish.style.left = `${x}%`;
-    fish.style.top = `${y}%`;
-    fish.style.setProperty("--duration", `${(isKoi ? 2.4 : 1.5) + (index % 5) * 0.3}s`);
-    fish.style.setProperty("--delay", `${-(index % 7) * 0.27}s`);
-    fish.style.transform = `translate(-50%, -50%) scaleX(${seededRandom(index * 7.7 + 3.1) < 0.38 ? -1 : 1})`;
-    fragment.appendChild(fish);
-  }
-
-  elements.fishPond.appendChild(fragment);
+function isFrogCycle(cycleIndex) {
+  if (cycleIndex === 1) return true;
+  if (cycleIndex < 4) return false;
+  return seededRandom(cycleIndex * 41.73 + 5.9) < 0.16;
 }
 
-function render(data) {
+function getGrowthState(total) {
+  if (total === 0) {
+    return { cycleIndex: 0, progress: 0, type: "goldfish", complete: false };
+  }
+
+  const remainder = total % GROWTH_CYCLE_LENGTH;
+  const complete = remainder === 0;
+  const cycleIndex = complete
+    ? total / GROWTH_CYCLE_LENGTH - 1
+    : Math.floor(total / GROWTH_CYCLE_LENGTH);
+  return {
+    cycleIndex,
+    progress: complete ? GROWTH_CYCLE_LENGTH : remainder,
+    type: isFrogCycle(cycleIndex) ? "frog" : "goldfish",
+    complete
+  };
+}
+
+function getAnimalFrame(group, action, frame) {
+  return `${ANIMAL_FRAME_ROOT}/${group}/${action}-${String(frame).padStart(2, "0")}.png`;
+}
+
+function createPondAnimal({ className, src, seed, scale = 1, frameAction = null }) {
+  const animal = document.createElement("img");
+  const { x, y } = seededPosition(seed);
+  const facing = seededRandom(seed * 7.7 + 3.1) < 0.5 ? -1 : 1;
+  animal.className = `goldfish ${className}`;
+  animal.src = src;
+  animal.alt = "";
+  animal.style.left = `${x}%`;
+  animal.style.top = `${y}%`;
+  animal.style.setProperty("--duration", `${1.8 + (seed % 5) * 0.28}s`);
+  animal.style.setProperty("--delay", `${-(seed % 7) * 0.27}s`);
+  animal.style.setProperty("--growth-scale", String(scale));
+  animal.style.transform = `translate(-50%, -50%) scaleX(${facing}) scale(var(--growth-scale))`;
+  animal.dataset.growthId = String(seed);
+
+  if (frameAction) {
+    animal.dataset.frameGroup = frameAction.group;
+    animal.dataset.frameAction = frameAction.action;
+    animal.dataset.frameOffset = String(Math.abs(seed) % 4);
+  }
+  return animal;
+}
+
+function collectRecentKoiCycles(completedCycles) {
+  const cycles = [];
+  for (let cycleIndex = completedCycles - 1; cycleIndex >= 0 && cycles.length < MAX_VISIBLE_KOI; cycleIndex -= 1) {
+    if (!isFrogCycle(cycleIndex)) cycles.push(cycleIndex);
+  }
+  return cycles.reverse();
+}
+
+function renderGrowth(total, previousTotal = null) {
+  const completedCycles = Math.floor(total / GROWTH_CYCLE_LENGTH);
+  const growth = getGrowthState(total);
+  const fragment = document.createDocumentFragment();
+  elements.fishPond.replaceChildren();
+  const koiCycles = collectRecentKoiCycles(completedCycles);
+
+  koiCycles.forEach((cycleIndex) => {
+    const koi = createPondAnimal({
+      className: "is-koi adult-koi",
+      src: pickSprite(KOI_SPRITES, cycleIndex * 31.17 + 7.3),
+      seed: cycleIndex * 13 + 101
+    });
+    koi.dataset.cycle = String(cycleIndex);
+    fragment.appendChild(koi);
+  });
+
+  const recentCycleStart = Math.max(0, completedCycles - 4);
+  for (let cycleIndex = recentCycleStart; cycleIndex < completedCycles; cycleIndex += 1) {
+    if (!isFrogCycle(cycleIndex)) continue;
+    const matureAt = (cycleIndex + 1) * GROWTH_CYCLE_LENGTH;
+    const escapeAt = matureAt + FROG_STAY_COUNTS;
+    const crossedEscape = previousTotal !== null && previousTotal < escapeAt && total >= escapeAt;
+    const isEscaping = total === escapeAt || crossedEscape;
+    if (total > escapeAt && !crossedEscape) continue;
+
+    const direction = seededRandom(cycleIndex * 9.3 + 2.1) < 0.5 ? "swim-left" : "swim-right";
+    const frog = createPondAnimal({
+      className: `growth-frog${isEscaping ? " is-escaping" : ""}`,
+      src: getAnimalFrame("frog-swim", direction, 1),
+      seed: cycleIndex * 17 + 701,
+      frameAction: { group: "frog-swim", action: direction }
+    });
+    frog.dataset.cycle = String(cycleIndex);
+    if (isEscaping) {
+      frog.classList.add(direction === "swim-left" ? "escape-left" : "escape-right");
+    }
+    fragment.appendChild(frog);
+  }
+
+  if (!growth.complete || total === 0) {
+    if (growth.type === "goldfish") {
+      const scale = 0.48 + growth.progress * 0.07;
+      const goldfish = createPondAnimal({
+        className: "growth-active growth-goldfish",
+        src: pickSprite(GOLDFISH_SPRITES, growth.cycleIndex * 31.17 + 7.3),
+        seed: growth.cycleIndex * 19 + 1701,
+        scale
+      });
+      goldfish.dataset.progress = String(growth.progress);
+      fragment.appendChild(goldfish);
+    } else {
+      const frame = Math.max(1, Math.min(8, Math.ceil(growth.progress * 8 / 9)));
+      const tadpole = createPondAnimal({
+        className: "growth-active growth-tadpole",
+        src: `${ANIMAL_FRAME_ROOT}/metamorphosis/frame-${String(frame).padStart(2, "0")}.png`,
+        seed: growth.cycleIndex * 19 + 2701,
+        scale: 0.72 + growth.progress * 0.045
+      });
+      tadpole.dataset.progress = String(growth.progress);
+      tadpole.dataset.metamorphosisFrame = String(frame);
+      fragment.appendChild(tadpole);
+    }
+  }
+
+  const count = fragment.childNodes.length;
+  elements.fishPond.dataset.density = count <= 8
+    ? "sparse"
+    : count <= 18
+      ? "medium"
+      : "dense";
+  elements.fishPond.appendChild(fragment);
+  elements.fishPond.dataset.growthType = growth.type;
+  elements.fishPond.dataset.growthProgress = String(growth.progress);
+}
+
+let pondFrame = 0;
+window.setInterval(() => {
+  pondFrame = (pondFrame + 1) % 4;
+  document.querySelectorAll("#fishPond [data-frame-group]").forEach((animal) => {
+    const frame = (pondFrame + Number(animal.dataset.frameOffset || 0)) % 4 + 1;
+    animal.src = getAnimalFrame(animal.dataset.frameGroup, animal.dataset.frameAction, frame);
+  });
+}, 220);
+
+function readVisitorState() {
+  try {
+    const parsed = JSON.parse(getStoredValue(VISITOR_STORAGE_KEY));
+    return {
+      cat: parsed?.cat || null,
+      bird: parsed?.bird || null
+    };
+  } catch (error) {
+    return { cat: null, bird: null };
+  }
+}
+
+let visitorState = readVisitorState();
+
+function saveVisitorState() {
+  setStoredValue(VISITOR_STORAGE_KEY, JSON.stringify(visitorState));
+}
+
+function getVisitorAction(type, phase, side) {
+  if (type === "cat") {
+    if (phase === "idle") return "sit-back";
+    if (phase === "entering") return side === "left" ? "walk-right" : "walk-left";
+    return side === "left" ? "walk-left" : "walk-right";
+  }
+  if (phase === "idle") return "perch";
+  if (phase === "entering") return side === "left" ? "fly-right" : "fly-left";
+  return side === "left" ? "fly-left" : "fly-right";
+}
+
+function setVisitorPhase(visitor, phase) {
+  const type = visitor.dataset.visitorType;
+  const side = visitor.dataset.side;
+  const action = getVisitorAction(type, phase, side);
+  visitor.classList.remove("is-entering", "is-idle", "is-leaving");
+  visitor.classList.add(`is-${phase}`);
+  visitor.dataset.phase = phase;
+  visitor.dataset.action = action;
+  visitor.querySelector("img").src = getAnimalFrame(type, action, 1);
+}
+
+function createVisitor(type, visit, phase = "idle") {
+  const existing = elements.visitorLayer.querySelector(`[data-visitor-type="${type}"]`);
+  if (existing) return existing;
+
+  const visitor = document.createElement("div");
+  const image = document.createElement("img");
+  visitor.className = `rare-visitor visitor-${type} from-${visit.side}`;
+  visitor.dataset.visitorType = type;
+  visitor.dataset.side = visit.side;
+  visitor.dataset.appearedAt = String(visit.appearedAt);
+  visitor.dataset.leaveAt = String(visit.leaveAt);
+  visitor.dataset.frameOffset = type === "cat" ? "0" : "2";
+  image.alt = "";
+  image.draggable = false;
+  visitor.appendChild(image);
+  elements.visitorLayer.appendChild(visitor);
+  setVisitorPhase(visitor, phase);
+
+  if (phase === "entering") {
+    window.setTimeout(() => {
+      if (visitor.isConnected && visitor.dataset.phase === "entering") setVisitorPhase(visitor, "idle");
+    }, type === "cat" ? 2800 : 2200);
+  }
+  return visitor;
+}
+
+function startVisitor(type, total, forced = false) {
+  const config = VISITOR_CONFIG[type];
+  const stayRange = config.maxStay - config.minStay + 1;
+  const visit = {
+    appearedAt: total,
+    leaveAt: total + config.minStay + Math.floor(Math.random() * stayRange),
+    side: Math.random() < 0.5 ? "left" : "right",
+    forced
+  };
+  visitorState[type] = visit;
+  saveVisitorState();
+  createVisitor(type, visit, "entering");
+}
+
+function leaveVisitor(type, immediate = false) {
+  const visitor = elements.visitorLayer.querySelector(`[data-visitor-type="${type}"]`);
+  visitorState[type] = null;
+  saveVisitorState();
+  if (!visitor) return;
+  if (immediate) {
+    visitor.remove();
+    return;
+  }
+  setVisitorPhase(visitor, "leaving");
+  window.setTimeout(() => visitor.remove(), type === "cat" ? 2800 : 2200);
+}
+
+function updateVisitors(total, countAdvanced = false) {
+  for (const type of Object.keys(VISITOR_CONFIG)) {
+    const visit = visitorState[type];
+    if (!visit) continue;
+    if (countAdvanced && total >= visit.leaveAt) {
+      leaveVisitor(type);
+    } else {
+      createVisitor(type, visit, "idle");
+    }
+  }
+
+  if (!countAdvanced) return;
+  const candidates = Object.keys(VISITOR_CONFIG)
+    .filter((type) => !visitorState[type] && !elements.visitorLayer.querySelector(`[data-visitor-type="${type}"]`))
+    .sort(() => Math.random() - 0.5);
+  const type = candidates.find((candidate) => Math.random() < VISITOR_CONFIG[candidate].chance);
+  if (type) startVisitor(type, total);
+}
+
+function forceVisitorForTest(type, total = 0) {
+  if (!VISITOR_CONFIG[type]) return;
+  leaveVisitor(type, true);
+  startVisitor(type, total, true);
+}
+
+function clearVisitorsForTest(immediate = false) {
+  Object.keys(VISITOR_CONFIG).forEach((type) => leaveVisitor(type, immediate));
+}
+
+let visitorFrame = 0;
+window.setInterval(() => {
+  visitorFrame = (visitorFrame + 1) % 4;
+  elements.visitorLayer.querySelectorAll(".rare-visitor[data-action]").forEach((visitor) => {
+    const frame = (visitorFrame + Number(visitor.dataset.frameOffset || 0)) % 4 + 1;
+    visitor.querySelector("img").src = getAnimalFrame(
+      visitor.dataset.visitorType,
+      visitor.dataset.action,
+      frame
+    );
+  });
+}, 240);
+
+function render(data, options = {}) {
   const total = Number(data.total) || 0;
   const qr = Number(data.qr) || 0;
   const sns = Number(data.sns) || 0;
   const stage = getStage(total);
-  const progress = getProgress(total);
+  const growth = getGrowthState(total);
 
   elements.total.textContent = total.toLocaleString("ja-JP");
   elements.qr.textContent = qr.toLocaleString("ja-JP");
@@ -320,19 +560,22 @@ function render(data) {
   elements.gameScreen.style.setProperty("--scene-image", `url("${background}")`);
   renderBackgroundFireworks(stage);
 
-  elements.progressLabel.textContent = progress.nextMilestone
-    ? `${total.toLocaleString("ja-JP")} / ${progress.nextMilestone.toLocaleString("ja-JP")}`
-    : `MAX ${MILESTONES[MILESTONES.length - 1].toLocaleString("ja-JP")}`;
-  elements.progressFill.style.width = `${progress.percent}%`;
-  const accessiblePercent = Math.floor(progress.percent * 100) / 100;
+  const growthName = growth.type === "frog"
+    ? growth.progress >= 6 ? "カエルへ成長中" : "おたまじゃくし"
+    : "金魚";
+  const completeName = growth.type === "frog" ? "カエルへ成長" : "鯉へ進化";
+  elements.progressLabel.textContent = growth.complete
+    ? `${completeName} 10 / 10`
+    : `${growthName} ${growth.progress} / 10`;
+  const progressPercent = growth.progress * 10;
+  elements.progressFill.style.width = `${progressPercent}%`;
+  const accessiblePercent = Math.floor(progressPercent * 100) / 100;
   elements.progressTrack.setAttribute("aria-valuenow", String(accessiblePercent));
-  elements.progressTrack.setAttribute(
-    "aria-valuetext",
-    progress.nextMilestone
-      ? `次の${progress.nextMilestone}匹まで${progress.nextMilestone - total}匹`
-      : "最高段階に到達"
-  );
-  renderFish(total);
+  elements.progressTrack.setAttribute("aria-valuetext", growth.complete
+    ? completeName
+    : `${growthName}の成長 ${growth.progress}回目、進化まで${10 - growth.progress}回`);
+  renderGrowth(total, options.previousTotal ?? null);
+  updateVisitors(total, Boolean(options.countAdvanced));
 }
 
 let thankYouTimeoutId = null;
@@ -359,7 +602,7 @@ function maybeCelebrate(total, force = false) {
   if (!force && hasStoredFlag(storageKey)) return;
 
   if (!force) storeFlag(storageKey);
-  elements.milestoneLabel.textContent = `${reachedMilestone.toLocaleString("ja-JP")} FISH!`;
+  elements.milestoneLabel.textContent = `${reachedMilestone.toLocaleString("ja-JP")} GROWTH!`;
   elements.celebration.classList.remove("is-playing");
   requestAnimationFrame(() => elements.celebration.classList.add("is-playing"));
   window.setTimeout(() => elements.celebration.classList.remove("is-playing"), 5200);
@@ -423,6 +666,7 @@ async function initialize() {
   const dailyKey = source ? `${getJstDateKey()}_${source}` : null;
   const shouldCount = Boolean(source && !hasStoredFlag(dailyKey));
   const requestSource = shouldCount ? source : null;
+  const previousCounter = readCachedCounter();
 
   // Reserve before the request so simultaneous tabs cannot both increment.
   if (shouldCount && !isLocalDemo() && !isSamplePreview()) storeFlag(dailyKey);
@@ -438,7 +682,10 @@ async function initialize() {
   try {
     const data = await fetchCounter(requestSource);
     if (!data.demo) cacheCounter(data);
-    render(data);
+    render(data, {
+      countAdvanced: shouldCount && !data.demo,
+      previousTotal: previousCounter?.total ?? null
+    });
     if (shouldCount && !data.demo) showThankYou();
     const forcePreviewEffect = data.preview
       && new URLSearchParams(window.location.search).get("effect") === "1";

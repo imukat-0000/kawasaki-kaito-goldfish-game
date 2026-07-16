@@ -47,7 +47,9 @@
 }
 
 .test-button,
-.stage-jumps button {
+.stage-jumps button,
+.growth-test-row button,
+.visitor-test-row button {
   min-height: 42px;
   border: 2px solid var(--ink);
   border-radius: 4px;
@@ -61,13 +63,17 @@
 }
 
 .test-button:hover,
-.stage-jumps button:hover {
+.stage-jumps button:hover,
+.growth-test-row button:hover,
+.visitor-test-row button:hover {
   filter: brightness(1.08);
   translate: 0 -1px;
 }
 
 .test-button:active,
-.stage-jumps button:active {
+.stage-jumps button:active,
+.growth-test-row button:active,
+.visitor-test-row button:active {
   box-shadow: none;
   translate: 2px 2px;
 }
@@ -130,11 +136,36 @@
   margin-top: 14px;
 }
 
-.stage-jumps button {
+.stage-jumps button,
+.growth-test-row button,
+.visitor-test-row button {
   min-height: 36px;
   background: #172b20;
   color: #fff1a5;
   font-size: 11px;
+}
+
+.growth-test-row,
+.visitor-test-row {
+  display: grid;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.growth-test-row {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.visitor-test-row {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.growth-test-row button {
+  background: #284936;
+}
+
+.visitor-test-row button {
+  background: #4a3d25;
 }
 
 @media (max-width: 720px) {
@@ -151,6 +182,10 @@
   }
 
   .stage-jumps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .growth-test-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -175,5 +210,9 @@
 
   .test-button.is-apply {
     grid-column: auto;
+  }
+
+  .visitor-test-row {
+    grid-template-columns: 1fr;
   }
 }
