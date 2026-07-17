@@ -7,7 +7,7 @@
   <meta name="description" content="金魚育成ゲームのカウンター動作テスト">
   <title>カウンターテスト | 金魚育成ゲーム</title>
   <link rel="icon" href="assets/goldfish_sprite.png" type="image/png">
-  <link rel="stylesheet" href="style.css?v=20260717-zoom1">
+  <link rel="stylesheet" href="style.css?v=20260717-visitors1">
   <link rel="stylesheet" href="tests/counter-test.css?v=20260717-perch6">
   <script>
     const params = new URLSearchParams(window.location.search);
@@ -26,7 +26,7 @@
 
     <section class="game-frame" aria-label="テスト用の金魚育成画面">
       <div class="game-screen" id="gameScreen">
-        <img class="scene" id="scene" src="assets/backgrounds-zoomed/tub_base.webp" alt="夏祭り会場の金魚桶">
+        <img class="scene" id="scene" src="assets/tub_base.png" alt="夏祭り会場の金魚桶">
         <img class="camera-transition" id="cameraTransition" src="assets/tub_base.png" alt="">
 
         <div class="world-layer world-background">
@@ -146,6 +146,11 @@
         <button type="button" data-force-visitor="bird">スズメを呼ぶ</button>
         <button type="button" id="clearTestVisitors">レアキャラ退場</button>
       </div>
+
+      <div class="visitor-test-row" aria-label="子供達の登退場見本">
+        <button type="button" id="showTestPeople">子供達を呼ぶ</button>
+        <button type="button" id="dismissTestPeople">子供達を帰す</button>
+      </div>
     </section>
 
     <footer class="campaign-footer">
@@ -154,7 +159,7 @@
     </footer>
   </main>
 
-  <script src="script.js?v=20260717-zoom1"></script>
-  <script src="tests/counter-test.js?v=20260717-zoom1"></script>
+  <script src="script.js?v=20260717-visitors1"></script>
+  <script src="tests/counter-test.js?v=20260717-visitors1"></script>
 </body>
 </html>

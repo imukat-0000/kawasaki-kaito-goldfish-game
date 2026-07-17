@@ -584,28 +584,64 @@ window.setInterval(() => {
   });
 }, 240);
 
-let renderedPeopleKey = "";
+const PEOPLE_ENTRY_MS = 3200;
+const PEOPLE_VISIT_MIN_MS = 8500;
+const PEOPLE_VISIT_MAX_MS = 12500;
+const PEOPLE_REAPPEAR_MIN_MS = 9000;
+const PEOPLE_REAPPEAR_MAX_MS = 18000;
+let peopleVisible = false;
+let peopleStage = 0;
+let peopleOriginalBackground = ORIGINAL_BACKGROUNDS[0];
+let peopleZoomedBackground = BACKGROUNDS[0];
+let peopleScheduleTimeoutId = null;
+let cameraZoomTimeoutId = null;
+const peopleActionTimeoutIds = new Set();
+
+function setPeopleTimeout(callback, delay) {
+  const timeoutId = window.setTimeout(() => {
+    peopleActionTimeoutIds.delete(timeoutId);
+    callback();
+  }, delay);
+  peopleActionTimeoutIds.add(timeoutId);
+  return timeoutId;
+}
+
+function clearPeopleActionTimeouts() {
+  peopleActionTimeoutIds.forEach((timeoutId) => window.clearTimeout(timeoutId));
+  peopleActionTimeoutIds.clear();
+}
+
+function randomDelay(minimum, maximum) {
+  return minimum + Math.random() * (maximum - minimum);
+}
+
+function setHumanAction(person, action) {
+  person.dataset.action = action;
+  person.querySelector("img").src = getHumanFrame(person.dataset.character, action, 1);
+}
 
 function createHumanCharacter(role, character, index) {
   const person = document.createElement("div");
   const image = document.createElement("img");
-  person.className = `human-character human-${role} is-entering`;
+  const entrySide = index % 2 === 0 ? "left" : "right";
+  person.className = `human-character human-${role} is-offscreen-${entrySide}`;
   person.dataset.character = character;
-  person.dataset.action = "walk";
+  person.dataset.action = entrySide === "left" ? "walk" : "walk-left";
   person.dataset.frameOffset = String(index % 4);
-  image.src = getHumanFrame(character, "walk", 1);
+  image.src = getHumanFrame(character, person.dataset.action, 1);
   image.alt = "";
   image.draggable = false;
   person.appendChild(image);
   elements.peopleLayer.appendChild(person);
 
-  window.setTimeout(() => {
+  window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
+    person.classList.remove(`is-offscreen-${entrySide}`);
+  }));
+
+  setPeopleTimeout(() => {
     if (!person.isConnected) return;
-    person.classList.remove("is-entering");
-    person.classList.add("is-idle");
-    person.dataset.action = "idle";
-    image.src = getHumanFrame(character, "idle", 1);
-  }, 3000 + index * 320);
+    setHumanAction(person, role === "woman" ? "idle" : "watch-back");
+  }, PEOPLE_ENTRY_MS + index * 180);
 }
 
 function renderPeople(stage) {
@@ -616,28 +652,91 @@ function renderPeople(stage) {
   ];
   if (stage >= 4) people.push(["woman", "night-woman"]);
 
-  const key = people.map(([, character]) => character).join("|");
-  if (key === renderedPeopleKey) return;
-  renderedPeopleKey = key;
   elements.peopleLayer.replaceChildren();
   people.forEach(([role, character], index) => createHumanCharacter(role, character, index));
 }
 
-let renderedCameraStage = null;
-let cameraZoomTimeoutId = null;
-
-function playCameraZoom(stage, originalBackground) {
-  if (stage === renderedCameraStage) return;
-  renderedCameraStage = stage;
+function playCameraZoom(direction) {
   if (cameraZoomTimeoutId !== null) window.clearTimeout(cameraZoomTimeoutId);
-  elements.cameraTransition.src = originalBackground;
-  elements.gameScreen.classList.remove("is-camera-zooming");
+  const zoomingOut = direction === "out";
+  const zoomClass = zoomingOut ? "is-camera-zooming-out" : "is-camera-zooming-in";
+  elements.gameScreen.classList.remove("is-camera-zooming-out", "is-camera-zooming-in");
+  elements.cameraTransition.src = zoomingOut ? peopleOriginalBackground : peopleZoomedBackground;
+  elements.scene.src = zoomingOut ? peopleZoomedBackground : peopleOriginalBackground;
+  elements.gameScreen.classList.toggle("has-people", zoomingOut);
   void elements.gameScreen.offsetWidth;
-  elements.gameScreen.classList.add("is-camera-zooming");
+  elements.gameScreen.classList.add(zoomClass);
   cameraZoomTimeoutId = window.setTimeout(() => {
-    elements.gameScreen.classList.remove("is-camera-zooming");
+    elements.gameScreen.classList.remove(zoomClass);
     cameraZoomTimeoutId = null;
   }, 3300);
+}
+
+function schedulePeopleVisit(delay = randomDelay(PEOPLE_REAPPEAR_MIN_MS, PEOPLE_REAPPEAR_MAX_MS)) {
+  if (peopleVisible || peopleScheduleTimeoutId !== null) return;
+  peopleScheduleTimeoutId = window.setTimeout(() => {
+    peopleScheduleTimeoutId = null;
+    startPeopleVisit();
+  }, delay);
+}
+
+function startPeopleVisit(force = false) {
+  if (peopleVisible) return;
+  if (peopleScheduleTimeoutId !== null) {
+    window.clearTimeout(peopleScheduleTimeoutId);
+    peopleScheduleTimeoutId = null;
+  }
+  clearPeopleActionTimeouts();
+  peopleVisible = true;
+  renderPeople(peopleStage);
+  playCameraZoom("out");
+  const stayDuration = force ? PEOPLE_VISIT_MIN_MS : randomDelay(PEOPLE_VISIT_MIN_MS, PEOPLE_VISIT_MAX_MS);
+  setPeopleTimeout(() => endPeopleVisit(), PEOPLE_ENTRY_MS + stayDuration);
+}
+
+function endPeopleVisit(immediate = false) {
+  if (!peopleVisible) return;
+  peopleVisible = false;
+  clearPeopleActionTimeouts();
+  if (immediate) {
+    elements.peopleLayer.replaceChildren();
+    elements.gameScreen.classList.remove("has-people", "is-camera-zooming-out", "is-camera-zooming-in");
+    elements.scene.src = peopleOriginalBackground;
+    schedulePeopleVisit();
+    return;
+  }
+
+  elements.peopleLayer.querySelectorAll(".human-character").forEach((person, index) => {
+    const exitSide = Math.random() < 0.5 ? "left" : "right";
+    const isWoman = person.classList.contains("human-woman");
+    setHumanAction(person, exitSide === "left" && !isWoman ? "walk-left" : "walk");
+    person.classList.toggle("is-facing-left", isWoman && exitSide === "left");
+    setPeopleTimeout(() => person.classList.add(`is-leaving-${exitSide}`), index * 160);
+  });
+  playCameraZoom("in");
+  setPeopleTimeout(() => {
+    elements.peopleLayer.replaceChildren();
+    schedulePeopleVisit();
+  }, 3500);
+}
+
+function syncPeopleScene(stage, originalBackground, zoomedBackground) {
+  const stageChanged = stage !== peopleStage;
+  if (stageChanged && peopleVisible) endPeopleVisit(true);
+  peopleStage = stage;
+  peopleOriginalBackground = originalBackground;
+  peopleZoomedBackground = zoomedBackground;
+  if (!peopleVisible) elements.scene.src = originalBackground;
+  schedulePeopleVisit(stageChanged ? 2200 : undefined);
+}
+
+function forcePeopleForTest() {
+  if (peopleVisible) endPeopleVisit(true);
+  startPeopleVisit(true);
+}
+
+function dismissPeopleForTest() {
+  endPeopleVisit();
 }
 
 function render(data, options = {}) {
@@ -653,12 +752,10 @@ function render(data, options = {}) {
   elements.stage.textContent = String(stage).padStart(2, "0");
   const background = BACKGROUNDS[Math.min(stage, BACKGROUNDS.length - 1)];
   const originalBackground = ORIGINAL_BACKGROUNDS[Math.min(stage, ORIGINAL_BACKGROUNDS.length - 1)];
-  elements.scene.src = background;
   elements.gameScreen.dataset.stage = String(stage);
   elements.gameScreen.style.setProperty("--scene-image", `url("${originalBackground}")`);
   renderBackgroundFireworks(stage);
-  renderPeople(stage);
-  playCameraZoom(stage, originalBackground);
+  syncPeopleScene(stage, originalBackground, background);
 
   const isFrogGrowth = growth.type === "frog";
   const growthTarget = isFrogGrowth ? FROG_SWIM_START_PROGRESS : GROWTH_CYCLE_LENGTH;

@@ -91,6 +91,11 @@ document.querySelectorAll("[data-force-visitor]").forEach((button) => {
 });
 
 document.querySelector("#clearTestVisitors").addEventListener("click", () => clearVisitorsForTest());
+document.querySelector("#showTestPeople").addEventListener("click", () => {
+  forcePeopleForTest();
+  document.querySelector("#gameScreen").scrollIntoView({ behavior: "smooth", block: "center" });
+});
+document.querySelector("#dismissTestPeople").addEventListener("click", () => dismissPeopleForTest());
 
 document.querySelector("#nextMilestoneButton").addEventListener("click", () => {
   const nextMilestone = MILESTONES.find((milestone) => milestone > testCounter.total);

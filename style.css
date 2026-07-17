@@ -117,7 +117,7 @@ h1 {
   overflow: hidden;
   pointer-events: none;
   transform-origin: 50% 50%;
-  scale: 0.8;
+  scale: 1;
 }
 
 .world-background {
@@ -128,12 +128,24 @@ h1 {
   z-index: 4;
 }
 
-.game-screen.is-camera-zooming .camera-transition {
+.game-screen.has-people .world-layer {
+  scale: 0.8;
+}
+
+.game-screen.is-camera-zooming-out .camera-transition {
   animation: camera-zoom-out 3.2s steps(28, end) both;
 }
 
-.game-screen.is-camera-zooming .world-layer {
+.game-screen.is-camera-zooming-out .world-layer {
   animation: world-zoom-out 3.2s steps(28, end) both;
+}
+
+.game-screen.is-camera-zooming-in .camera-transition {
+  animation: camera-zoom-in 3.2s steps(28, end) both;
+}
+
+.game-screen.is-camera-zooming-in .world-layer {
+  animation: world-zoom-in 3.2s steps(28, end) both;
 }
 
 @keyframes camera-zoom-out {
@@ -145,6 +157,17 @@ h1 {
 @keyframes world-zoom-out {
   from { scale: 1; }
   to { scale: 0.8; }
+}
+
+@keyframes camera-zoom-in {
+  0% { opacity: 1; scale: 0.8; }
+  84% { opacity: 1; scale: 1; }
+  100% { opacity: 0; scale: 1; }
+}
+
+@keyframes world-zoom-in {
+  from { scale: 0.8; }
+  to { scale: 1; }
 }
 
 .ambient-scene {
@@ -601,7 +624,11 @@ h1 {
 
 .human-character {
   position: absolute;
-  bottom: 7.8%;
+  top: var(--people-anchor-y, 42%);
+  width: var(--person-width);
+  translate: 0 0;
+  transform: translate(-50%, -100%);
+  transition: translate 3.1s steps(18, end);
   pointer-events: none;
 }
 
@@ -614,42 +641,51 @@ h1 {
 }
 
 .human-girl {
-  left: 11%;
-  width: 13%;
+  left: 38%;
+  --person-width: 13%;
 }
 
 .human-boy {
-  right: 9%;
-  width: 16%;
-}
-
-.human-boy img {
-  transform: scaleX(-1);
+  left: 62%;
+  --person-width: 16%;
 }
 
 .human-woman {
-  left: 2.5%;
-  bottom: 8.2%;
-  width: 10.5%;
+  left: 23%;
+  --person-width: 10.5%;
 }
 
-.human-girl.is-entering,
-.human-woman.is-entering {
-  animation: human-enter-left 3s steps(16, end) both;
+.human-character.is-offscreen-left,
+.human-character.is-leaving-left {
+  translate: -620% 300%;
 }
 
-.human-boy.is-entering {
-  animation: human-enter-right 3.25s steps(16, end) both;
+.human-character.is-offscreen-right,
+.human-character.is-leaving-right {
+  translate: 620% 300%;
 }
 
-@keyframes human-enter-left {
-  from { translate: -220% 0; }
-  to { translate: 0 0; }
+.human-character.is-leaving-left,
+.human-character.is-leaving-right {
+  transition-duration: 3.2s;
 }
 
-@keyframes human-enter-right {
-  from { translate: 220% 0; }
-  to { translate: 0 0; }
+.human-character.is-facing-left img {
+  transform: scaleX(-1);
+}
+
+.game-screen[data-stage="0"] { --people-anchor-y: 41%; }
+.game-screen[data-stage="1"] { --people-anchor-y: 42%; }
+.game-screen[data-stage="2"] { --people-anchor-y: 48%; }
+.game-screen[data-stage="3"] { --people-anchor-y: 49%; }
+.game-screen[data-stage="4"] { --people-anchor-y: 51%; }
+.game-screen[data-stage="5"] { --people-anchor-y: 49%; }
+.game-screen[data-stage="6"] { --people-anchor-y: 51%; }
+
+.game-screen[data-stage="4"] .human-woman,
+.game-screen[data-stage="5"] .human-woman,
+.game-screen[data-stage="6"] .human-woman {
+  top: calc(var(--people-anchor-y) + 4%);
 }
 
 /* Toe anchors measured against each stage's rear rim. */
@@ -1104,7 +1140,8 @@ h1 {
   }
 
   .progress-fill,
-  .scene {
+  .scene,
+  .human-character {
     transition: none;
   }
 
