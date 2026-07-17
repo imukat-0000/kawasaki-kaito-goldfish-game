@@ -32,6 +32,7 @@ const TADPOLE_GROWTH_SCALES = [0.52, 0.46, 0.55, 0.59, 0.71, 0.83, 0.89];
 const MAX_VISIBLE_KOI = 24;
 const FROG_STAY_COUNTS = 12;
 const ANIMAL_FRAME_ROOT = "assets/animal-sprites/color-v2/frames";
+const HUMAN_FRAME_ROOT = "assets/human-sprites/frames";
 const VISITOR_STORAGE_KEY = document.body.classList.contains("test-page")
   ? "growth_game_visitors_test_v1"
   : "growth_game_visitors_v1";
@@ -105,6 +106,7 @@ const elements = {
   fireworks: document.querySelector("#fireworks"),
   fishPond: document.querySelector("#fishPond"),
   visitorLayer: document.querySelector("#visitorLayer"),
+  peopleLayer: document.querySelector("#peopleLayer"),
   total: document.querySelector("#totalCount"),
   qr: document.querySelector("#qrCount"),
   sns: document.querySelector("#snsCount"),
@@ -292,6 +294,10 @@ function getGrowthState(total) {
 
 function getAnimalFrame(group, action, frame) {
   return `${ANIMAL_FRAME_ROOT}/${group}/${action}-${String(frame).padStart(2, "0")}.png`;
+}
+
+function getHumanFrame(character, action, frame) {
+  return `${HUMAN_FRAME_ROOT}/${character}/${action}-${String(frame).padStart(2, "0")}.png`;
 }
 
 function createPondAnimal({ className, src, seed, scale = 1, frameAction = null }) {
@@ -545,8 +551,10 @@ function clearVisitorsForTest(immediate = false) {
   Object.keys(VISITOR_CONFIG).forEach((type) => leaveVisitor(type, immediate));
 }
 
+const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 let visitorFrame = 0;
 window.setInterval(() => {
+  if (reducedMotionQuery.matches) return;
   visitorFrame = (visitorFrame + 1) % 4;
   elements.visitorLayer.querySelectorAll(".rare-visitor[data-action]").forEach((visitor) => {
     const frame = (visitorFrame + Number(visitor.dataset.frameOffset || 0)) % 4 + 1;
@@ -556,7 +564,54 @@ window.setInterval(() => {
       frame
     );
   });
+  elements.peopleLayer.querySelectorAll(".human-character[data-action]").forEach((person) => {
+    const frame = (visitorFrame + Number(person.dataset.frameOffset || 0)) % 4 + 1;
+    person.querySelector("img").src = getHumanFrame(
+      person.dataset.character,
+      person.dataset.action,
+      frame
+    );
+  });
 }, 240);
+
+let renderedPeopleKey = "";
+
+function createHumanCharacter(role, character, index) {
+  const person = document.createElement("div");
+  const image = document.createElement("img");
+  person.className = `human-character human-${role} is-entering`;
+  person.dataset.character = character;
+  person.dataset.action = "walk";
+  person.dataset.frameOffset = String(index % 4);
+  image.src = getHumanFrame(character, "walk", 1);
+  image.alt = "";
+  image.draggable = false;
+  person.appendChild(image);
+  elements.peopleLayer.appendChild(person);
+
+  window.setTimeout(() => {
+    if (!person.isConnected) return;
+    person.classList.remove("is-entering");
+    person.classList.add("is-idle");
+    person.dataset.action = "idle";
+    image.src = getHumanFrame(character, "idle", 1);
+  }, 3000 + index * 320);
+}
+
+function renderPeople(stage) {
+  const isNight = stage >= 3;
+  const people = [
+    ["girl", isNight ? "night-girl" : "day-girl"],
+    ["boy", isNight ? "night-boy" : "day-boy"]
+  ];
+  if (stage >= 4) people.push(["woman", "night-woman"]);
+
+  const key = people.map(([, character]) => character).join("|");
+  if (key === renderedPeopleKey) return;
+  renderedPeopleKey = key;
+  elements.peopleLayer.replaceChildren();
+  people.forEach(([role, character], index) => createHumanCharacter(role, character, index));
+}
 
 function render(data, options = {}) {
   const total = Number(data.total) || 0;
@@ -574,6 +629,7 @@ function render(data, options = {}) {
   elements.gameScreen.dataset.stage = String(stage);
   elements.gameScreen.style.setProperty("--scene-image", `url("${background}")`);
   renderBackgroundFireworks(stage);
+  renderPeople(stage);
 
   const isFrogGrowth = growth.type === "frog";
   const growthTarget = isFrogGrowth ? FROG_SWIM_START_PROGRESS : GROWTH_CYCLE_LENGTH;
