@@ -98,6 +98,55 @@ h1 {
   z-index: 0;
 }
 
+.camera-transition {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  pointer-events: none;
+  image-rendering: pixelated;
+  transform-origin: 50% 50%;
+}
+
+.world-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transform-origin: 50% 50%;
+  scale: 0.8;
+}
+
+.world-background {
+  z-index: 2;
+}
+
+.world-creatures {
+  z-index: 4;
+}
+
+.game-screen.is-camera-zooming .camera-transition {
+  animation: camera-zoom-out 3.2s steps(28, end) both;
+}
+
+.game-screen.is-camera-zooming .world-layer {
+  animation: world-zoom-out 3.2s steps(28, end) both;
+}
+
+@keyframes camera-zoom-out {
+  0% { opacity: 1; scale: 1; }
+  84% { opacity: 1; scale: 0.8; }
+  100% { opacity: 0; scale: 0.8; }
+}
+
+@keyframes world-zoom-out {
+  from { scale: 1; }
+  to { scale: 0.8; }
+}
+
 .ambient-scene {
   position: absolute;
   inset: 0;
@@ -565,12 +614,12 @@ h1 {
 }
 
 .human-girl {
-  left: 3.5%;
+  left: 11%;
   width: 13%;
 }
 
 .human-boy {
-  right: 1.5%;
+  right: 9%;
   width: 16%;
 }
 
@@ -579,7 +628,7 @@ h1 {
 }
 
 .human-woman {
-  left: 17%;
+  left: 2.5%;
   bottom: 8.2%;
   width: 10.5%;
 }
@@ -1046,6 +1095,8 @@ h1 {
   .goldfish,
   .rare-visitor,
   .human-character,
+  .camera-transition,
+  .world-layer,
   .bonodori-drummer,
   .bonodori-dancer,
   .ambient-object {

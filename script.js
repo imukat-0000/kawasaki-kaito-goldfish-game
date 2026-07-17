@@ -5,7 +5,7 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbwJKRyeAw9jiC-jmvJ2fIgRdmdHpu1CVCu61cEC9OojBjMtszdU4fdj99eBIPz0ogwh/exec";
 
 const MILESTONES = [100, 500, 1000, 10000, 100000, 1000000];
-const BACKGROUNDS = [
+const ORIGINAL_BACKGROUNDS = [
   "assets/tub_base.png",
   "assets/backgrounds-no-static-fireworks/tub_levelup1.png",
   "assets/backgrounds-low-water/tub_levelup2.png",
@@ -13,6 +13,15 @@ const BACKGROUNDS = [
   "assets/backgrounds-low-water/tub_levelup4.png",
   "assets/backgrounds-low-water/tub_levelup5.png",
   "assets/backgrounds-low-water/tub_levelup6.png"
+];
+const BACKGROUNDS = [
+  "assets/backgrounds-zoomed/tub_base.webp",
+  "assets/backgrounds-zoomed/tub_levelup1.webp",
+  "assets/backgrounds-zoomed/tub_levelup2.webp",
+  "assets/backgrounds-zoomed/tub_levelup3.webp",
+  "assets/backgrounds-zoomed/tub_levelup4.webp",
+  "assets/backgrounds-zoomed/tub_levelup5.webp",
+  "assets/backgrounds-zoomed/tub_levelup6.webp"
 ];
 const GOLDFISH_SPRITES = [
   "assets/goldfish_sprite.png",
@@ -103,6 +112,7 @@ const fallbackStorage = new Map();
 const elements = {
   gameScreen: document.querySelector("#gameScreen"),
   scene: document.querySelector("#scene"),
+  cameraTransition: document.querySelector("#cameraTransition"),
   fireworks: document.querySelector("#fireworks"),
   fishPond: document.querySelector("#fishPond"),
   visitorLayer: document.querySelector("#visitorLayer"),
@@ -613,6 +623,23 @@ function renderPeople(stage) {
   people.forEach(([role, character], index) => createHumanCharacter(role, character, index));
 }
 
+let renderedCameraStage = null;
+let cameraZoomTimeoutId = null;
+
+function playCameraZoom(stage, originalBackground) {
+  if (stage === renderedCameraStage) return;
+  renderedCameraStage = stage;
+  if (cameraZoomTimeoutId !== null) window.clearTimeout(cameraZoomTimeoutId);
+  elements.cameraTransition.src = originalBackground;
+  elements.gameScreen.classList.remove("is-camera-zooming");
+  void elements.gameScreen.offsetWidth;
+  elements.gameScreen.classList.add("is-camera-zooming");
+  cameraZoomTimeoutId = window.setTimeout(() => {
+    elements.gameScreen.classList.remove("is-camera-zooming");
+    cameraZoomTimeoutId = null;
+  }, 3300);
+}
+
 function render(data, options = {}) {
   const total = Number(data.total) || 0;
   const qr = Number(data.qr) || 0;
@@ -625,11 +652,13 @@ function render(data, options = {}) {
   elements.sns.textContent = sns.toLocaleString("ja-JP");
   elements.stage.textContent = String(stage).padStart(2, "0");
   const background = BACKGROUNDS[Math.min(stage, BACKGROUNDS.length - 1)];
+  const originalBackground = ORIGINAL_BACKGROUNDS[Math.min(stage, ORIGINAL_BACKGROUNDS.length - 1)];
   elements.scene.src = background;
   elements.gameScreen.dataset.stage = String(stage);
-  elements.gameScreen.style.setProperty("--scene-image", `url("${background}")`);
+  elements.gameScreen.style.setProperty("--scene-image", `url("${originalBackground}")`);
   renderBackgroundFireworks(stage);
   renderPeople(stage);
+  playCameraZoom(stage, originalBackground);
 
   const isFrogGrowth = growth.type === "frog";
   const growthTarget = isFrogGrowth ? FROG_SWIM_START_PROGRESS : GROWTH_CYCLE_LENGTH;
