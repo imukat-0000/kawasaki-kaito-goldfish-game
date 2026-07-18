@@ -759,6 +759,7 @@ function render(data, options = {}) {
   const originalBackground = ORIGINAL_BACKGROUNDS[Math.min(stage, ORIGINAL_BACKGROUNDS.length - 1)];
   elements.gameScreen.dataset.stage = String(stage);
   elements.gameScreen.style.setProperty("--scene-image", `url("${originalBackground}")`);
+  elements.gameScreen.style.setProperty("--zoomed-scene-image", `url("${background}")`);
   renderBackgroundFireworks(stage);
   syncPeopleScene(stage, originalBackground, background);
 
