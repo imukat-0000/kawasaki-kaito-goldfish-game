@@ -6,7 +6,7 @@
   <base href="../">
   <title>Goldfish game browser test harness</title>
   <link rel="icon" href="assets/goldfish_sprite.png" type="image/png">
-  <link rel="stylesheet" href="../style.css?v=20260718-peopledepth2">
+  <link rel="stylesheet" href="../style.css?v=20260719-stagelayers2">
   <script>
     const testParams = new URLSearchParams(window.location.search);
     const testMode = testParams.get("mode") || "success";
@@ -80,6 +80,11 @@
     <section class="game-frame" aria-label="テスト用の金魚桶">
       <div class="game-screen" id="gameScreen">
         <img class="scene" id="scene" src="../assets/tub_base.png" alt="テスト用の金魚桶">
+        <div class="stage-scene-layers" id="stageSceneLayers" aria-hidden="true">
+          <img class="stage-layer stage-layer-background" id="stageLayerBackground" alt="">
+          <img class="stage-layer stage-layer-midground" id="stageLayerMidground" alt="">
+          <img class="stage-layer stage-layer-tub" id="stageLayerTub" alt="">
+        </div>
         <img class="camera-transition" id="cameraTransition" src="../assets/tub_base.png" alt="">
         <div class="world-layer world-background">
           <div class="ambient-scene" aria-hidden="true"></div>
@@ -92,11 +97,9 @@
           <div class="fish-pond" id="fishPond" aria-hidden="true"></div>
           <div class="visitor-layer" id="visitorLayer" aria-hidden="true"></div>
         </div>
+        <img class="stage-tub-foreground" id="stageTubForeground" alt="" aria-hidden="true">
         <div class="people-layer" id="peopleLayer" aria-hidden="true"></div>
-        <div class="people-foreground" aria-hidden="true">
-          <div class="people-foreground-piece foreground-left"></div>
-          <div class="people-foreground-piece foreground-right"></div>
-        </div>
+        <img class="stage-lower-foreground" id="stageLowerForeground" alt="" aria-hidden="true">
         <p class="thank-you-message" id="thankYouMessage" role="status" aria-live="polite" aria-hidden="true">Thank you !</p>
         <div class="celebration" id="celebration" aria-hidden="true">
           <div class="celebration-banner"><span id="milestoneLabel">100 FISH!</span></div>
@@ -120,6 +123,6 @@
     </section>
     <footer class="campaign-footer"><p>browser test</p><p class="source-note" id="sourceNote">通常アクセス</p></footer>
   </main>
-  <script src="../script.js?v=20260718-peopledepth2"></script>
+  <script src="../script.js?v=20260719-stagelayers2"></script>
 </body>
 </html>

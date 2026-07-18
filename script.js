@@ -14,15 +14,7 @@ const ORIGINAL_BACKGROUNDS = [
   "assets/backgrounds-low-water/tub_levelup5.png",
   "assets/backgrounds-low-water/tub_levelup6.png"
 ];
-const BACKGROUNDS = [
-  "assets/backgrounds-zoomed/tub_base.webp",
-  "assets/backgrounds-zoomed/tub_levelup1.webp",
-  "assets/backgrounds-zoomed/tub_levelup2.webp",
-  "assets/backgrounds-zoomed/tub_levelup3.webp",
-  "assets/backgrounds-zoomed/tub_levelup4.webp",
-  "assets/backgrounds-zoomed/tub_levelup5.webp",
-  "assets/backgrounds-zoomed/tub_levelup6.webp"
-];
+const STAGE_LAYER_ROOTS = Array.from({ length: 7 }, (_, stage) => `assets/stage-layers/stage-${stage}`);
 const preloadedBackgrounds = new Set();
 const GOLDFISH_SPRITES = [
   "assets/goldfish_sprite.png",
@@ -113,6 +105,11 @@ const fallbackStorage = new Map();
 const elements = {
   gameScreen: document.querySelector("#gameScreen"),
   scene: document.querySelector("#scene"),
+  stageLayerBackground: document.querySelector("#stageLayerBackground"),
+  stageLayerMidground: document.querySelector("#stageLayerMidground"),
+  stageLayerTub: document.querySelector("#stageLayerTub"),
+  stageTubForeground: document.querySelector("#stageTubForeground"),
+  stageLowerForeground: document.querySelector("#stageLowerForeground"),
   cameraTransition: document.querySelector("#cameraTransition"),
   fireworks: document.querySelector("#fireworks"),
   fishPond: document.querySelector("#fishPond"),
@@ -593,7 +590,6 @@ const PEOPLE_REAPPEAR_MAX_MS = 18000;
 let peopleVisible = false;
 let peopleStage = 0;
 let peopleOriginalBackground = ORIGINAL_BACKGROUNDS[0];
-let peopleZoomedBackground = BACKGROUNDS[0];
 let peopleScheduleTimeoutId = null;
 let cameraZoomTimeoutId = null;
 const peopleActionTimeoutIds = new Set();
@@ -663,7 +659,7 @@ function playCameraZoom(direction) {
   const zoomClass = zoomingOut ? "is-camera-zooming-out" : "is-camera-zooming-in";
   elements.gameScreen.classList.remove("is-camera-zooming-out", "is-camera-zooming-in");
   elements.cameraTransition.src = peopleOriginalBackground;
-  elements.scene.src = peopleZoomedBackground;
+  elements.scene.src = peopleOriginalBackground;
   elements.gameScreen.classList.toggle("has-people", zoomingOut);
   void elements.gameScreen.offsetWidth;
   elements.gameScreen.classList.add(zoomClass);
@@ -720,17 +716,33 @@ function endPeopleVisit(immediate = false) {
   }, 3500);
 }
 
-function syncPeopleScene(stage, originalBackground, zoomedBackground) {
+function renderStageLayers(stage) {
+  const root = STAGE_LAYER_ROOTS[Math.min(stage, STAGE_LAYER_ROOTS.length - 1)];
+  const sources = {
+    background: `${root}/background.png`,
+    midground: `${root}/runtime/midground.png`,
+    tub: `${root}/runtime/tub.png`,
+    foreground: `${root}/runtime/foreground.png`
+  };
+  elements.stageLayerBackground.src = sources.background;
+  elements.stageLayerMidground.src = sources.midground;
+  elements.stageLayerTub.src = sources.tub;
+  elements.stageTubForeground.src = sources.tub;
+  elements.stageLowerForeground.src = sources.foreground;
+  Object.values(sources).forEach((source) => {
+    if (preloadedBackgrounds.has(source)) return;
+    const preload = new Image();
+    preload.src = source;
+    preloadedBackgrounds.add(source);
+  });
+}
+
+function syncPeopleScene(stage, originalBackground) {
   const stageChanged = stage !== peopleStage;
   if (stageChanged && peopleVisible) endPeopleVisit(true);
   peopleStage = stage;
   peopleOriginalBackground = originalBackground;
-  peopleZoomedBackground = zoomedBackground;
-  if (!preloadedBackgrounds.has(zoomedBackground)) {
-    const preload = new Image();
-    preload.src = zoomedBackground;
-    preloadedBackgrounds.add(zoomedBackground);
-  }
+  renderStageLayers(stage);
   if (!peopleVisible) elements.scene.src = originalBackground;
   schedulePeopleVisit(stageChanged ? 2200 : undefined);
 }
@@ -755,13 +767,11 @@ function render(data, options = {}) {
   elements.qr.textContent = qr.toLocaleString("ja-JP");
   elements.sns.textContent = sns.toLocaleString("ja-JP");
   elements.stage.textContent = String(stage).padStart(2, "0");
-  const background = BACKGROUNDS[Math.min(stage, BACKGROUNDS.length - 1)];
   const originalBackground = ORIGINAL_BACKGROUNDS[Math.min(stage, ORIGINAL_BACKGROUNDS.length - 1)];
   elements.gameScreen.dataset.stage = String(stage);
   elements.gameScreen.style.setProperty("--scene-image", `url("${originalBackground}")`);
-  elements.gameScreen.style.setProperty("--zoomed-scene-image", `url("${background}")`);
   renderBackgroundFireworks(stage);
-  syncPeopleScene(stage, originalBackground, background);
+  syncPeopleScene(stage, originalBackground);
 
   const isFrogGrowth = growth.type === "frog";
   const growthTarget = isFrogGrowth ? FROG_SWIM_START_PROGRESS : GROWTH_CYCLE_LENGTH;
