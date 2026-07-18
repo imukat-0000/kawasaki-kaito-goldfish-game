@@ -784,35 +784,35 @@ h1 {
 }
 
 .game-screen[data-stage="4"] {
-  --boy-left: 13.5%;
+  --boy-left: 17%;
   --boy-bottom: 8.1%;
   --boy-width: 29.2%;
   --girl-left: 79.3%;
   --girl-bottom: 6.5%;
   --girl-width: 28.8%;
-  --woman-left: 27%;
+  --woman-left: 29%;
   --woman-bottom: 20.3%;
 }
 
 .game-screen[data-stage="5"] {
-  --boy-left: 13.5%;
+  --boy-left: 17%;
   --boy-bottom: 6.3%;
   --boy-width: 29.2%;
   --girl-left: 80.7%;
   --girl-bottom: 4.6%;
   --girl-width: 28.8%;
-  --woman-left: 27%;
+  --woman-left: 29%;
   --woman-bottom: 18.4%;
 }
 
 .game-screen[data-stage="6"] {
-  --boy-left: 13.5%;
+  --boy-left: 17%;
   --boy-bottom: 4.4%;
   --boy-width: 29.2%;
   --girl-left: 79.3%;
   --girl-bottom: 3.2%;
   --girl-width: 28.8%;
-  --woman-left: 27%;
+  --woman-left: 29%;
   --woman-bottom: 17%;
 }
 
