@@ -90,6 +90,13 @@ document.querySelectorAll("[data-force-visitor]").forEach((button) => {
   });
 });
 
+document.querySelector("#showAllTestVisitors").addEventListener("click", () => {
+  forceVisitorForTest("cat", testCounter.total);
+  forceVisitorForTest("bird", testCounter.total);
+  forcePeopleForTest();
+  document.querySelector("#gameScreen").scrollIntoView({ behavior: "smooth", block: "center" });
+});
+
 document.querySelector("#clearTestVisitors").addEventListener("click", () => clearVisitorsForTest());
 document.querySelector("#showTestPeople").addEventListener("click", () => {
   forcePeopleForTest();

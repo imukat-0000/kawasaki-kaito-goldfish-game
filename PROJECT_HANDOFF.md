@@ -79,6 +79,7 @@
 - 人物登場時は `assets/stage-layers/stage-0/` 〜 `stage-6/` の分離素材を使う。旧 `assets/backgrounds-zoomed/` は現行表示では使用しない。
 - 各ステージの編集元は、桶や画面下部の装飾を含まない `background.png`、透過済みの `tub.png`、左右の `stall-*.png`、左右の `foreground-*.png` の6素材で構成する。
 - ゲーム内の重なり順は、背景、中景屋台、桶、生物、クリップした桶前面、人物、手前装飾、HUD。背景へ桶や植栽を焼き込まないため、ズームアウト時に桶が二重または半透明で重ならない。
+- 猫とスズメは魚とは別の `.world-visitors` に置き、桶前面より上、人物より下に表示する。これにより猫の全身が桶の手前に見え、スズメの足も木枠に隠れない。
 - `tools/build_stage_layers.py` が各素材を1448x1086へ配置し、`runtime/midground.png`、`runtime/tub.png`、`runtime/foreground.png`、確認用 `runtime/preview.jpg` と `contact-sheet.jpg` を生成する。
 - 魚、カエル、猫、スズメ、背景花火は `.world-layer` にまとめ、人物登場時に背景と同じ80%へ縮小する。人物とHUDは縮小しない。
 - 通常時は従来背景と等倍の生物表示を使う。人物が現れる時だけ3.2秒で分離ステージへ切り替えながら80%へズームアウトし、人物の退場時に3.2秒で元の背景へ戻す。
@@ -150,6 +151,8 @@ python3 -m http.server 8000
 ```text
 http://localhost:8000/counter-test.html
 ```
+
+`全キャラクターを呼ぶ` で猫、スズメ、子供たちを同時表示し、ステージ4〜6では浴衣の女性も追加できる。全7ステージの実画面確認画像は `assets/stage-showcase/stage-0.png` 〜 `stage-6.png`、一覧は `assets/stage-showcase/all-stages.jpg` に保存する。
 
 デモ値は `?demo=` で指定できる。
 

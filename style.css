@@ -184,6 +184,10 @@ h1 {
   z-index: 4;
 }
 
+.world-visitors {
+  z-index: 6;
+}
+
 .game-screen.has-people .world-layer {
   scale: 0.8;
 }

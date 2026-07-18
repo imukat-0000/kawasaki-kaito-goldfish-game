@@ -7,7 +7,7 @@
   <meta name="description" content="金魚育成ゲームのカウンター動作テスト">
   <title>カウンターテスト | 金魚育成ゲーム</title>
   <link rel="icon" href="assets/goldfish_sprite.png" type="image/png">
-  <link rel="stylesheet" href="style.css?v=20260719-stagelayers2">
+  <link rel="stylesheet" href="style.css?v=20260719-stagelayers3">
   <link rel="stylesheet" href="tests/counter-test.css?v=20260717-perch6">
   <script>
     const params = new URLSearchParams(window.location.search);
@@ -63,6 +63,8 @@
 
         <div class="world-layer world-creatures">
           <div class="fish-pond" id="fishPond" aria-hidden="true"></div>
+        </div>
+        <div class="world-layer world-visitors">
           <div class="visitor-layer" id="visitorLayer" aria-hidden="true"></div>
         </div>
         <img class="stage-tub-foreground" id="stageTubForeground" alt="" aria-hidden="true">
@@ -149,6 +151,7 @@
       </div>
 
       <div class="visitor-test-row" aria-label="レアキャラクター見本">
+        <button type="button" id="showAllTestVisitors">全キャラクターを呼ぶ</button>
         <button type="button" data-force-visitor="cat">猫を呼ぶ</button>
         <button type="button" data-force-visitor="bird">スズメを呼ぶ</button>
         <button type="button" id="clearTestVisitors">レアキャラ退場</button>
@@ -166,7 +169,7 @@
     </footer>
   </main>
 
-  <script src="script.js?v=20260719-stagelayers2"></script>
-  <script src="tests/counter-test.js?v=20260717-visitors1"></script>
+  <script src="script.js?v=20260719-stagelayers3"></script>
+  <script src="tests/counter-test.js?v=20260719-showcase1"></script>
 </body>
 </html>
