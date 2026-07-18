@@ -641,13 +641,19 @@ h1 {
 }
 
 .human-girl {
-  left: 38%;
-  --person-width: 13%;
+  left: 82%;
+  top: auto;
+  bottom: 1.5%;
+  transform: translateX(-50%);
+  --person-width: 35%;
 }
 
 .human-boy {
-  left: 62%;
-  --person-width: 16%;
+  left: 18%;
+  top: auto;
+  bottom: 1.5%;
+  transform: translateX(-50%);
+  --person-width: 43%;
 }
 
 .human-woman {

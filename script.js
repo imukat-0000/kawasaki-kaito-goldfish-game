@@ -575,18 +575,18 @@ window.setInterval(() => {
     );
   });
   elements.peopleLayer.querySelectorAll(".human-character[data-action]").forEach((person) => {
+    const action = person.dataset.action;
+    if (action === "watch-back" || action === "idle") return;
     const frame = (visitorFrame + Number(person.dataset.frameOffset || 0)) % 4 + 1;
     person.querySelector("img").src = getHumanFrame(
       person.dataset.character,
-      person.dataset.action,
+      action,
       frame
     );
   });
 }, 240);
 
 const PEOPLE_ENTRY_MS = 3200;
-const PEOPLE_VISIT_MIN_MS = 8500;
-const PEOPLE_VISIT_MAX_MS = 12500;
 const PEOPLE_REAPPEAR_MIN_MS = 9000;
 const PEOPLE_REAPPEAR_MAX_MS = 18000;
 let peopleVisible = false;
@@ -680,7 +680,7 @@ function schedulePeopleVisit(delay = randomDelay(PEOPLE_REAPPEAR_MIN_MS, PEOPLE_
   }, delay);
 }
 
-function startPeopleVisit(force = false) {
+function startPeopleVisit() {
   if (peopleVisible) return;
   if (peopleScheduleTimeoutId !== null) {
     window.clearTimeout(peopleScheduleTimeoutId);
@@ -690,8 +690,6 @@ function startPeopleVisit(force = false) {
   peopleVisible = true;
   renderPeople(peopleStage);
   playCameraZoom("out");
-  const stayDuration = force ? PEOPLE_VISIT_MIN_MS : randomDelay(PEOPLE_VISIT_MIN_MS, PEOPLE_VISIT_MAX_MS);
-  setPeopleTimeout(() => endPeopleVisit(), PEOPLE_ENTRY_MS + stayDuration);
 }
 
 function endPeopleVisit(immediate = false) {
@@ -732,7 +730,7 @@ function syncPeopleScene(stage, originalBackground, zoomedBackground) {
 
 function forcePeopleForTest() {
   if (peopleVisible) endPeopleVisit(true);
-  startPeopleVisit(true);
+  startPeopleVisit();
 }
 
 function dismissPeopleForTest() {
