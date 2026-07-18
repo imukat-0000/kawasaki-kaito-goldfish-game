@@ -637,7 +637,7 @@ function createHumanCharacter(role, character, index) {
 
   setPeopleTimeout(() => {
     if (!person.isConnected) return;
-    setHumanAction(person, role === "woman" ? "idle" : "watch-back");
+    setHumanAction(person, "look-in");
   }, PEOPLE_ENTRY_MS + index * 180);
 }
 
