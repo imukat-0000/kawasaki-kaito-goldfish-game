@@ -79,7 +79,7 @@
 - 人物登場時の比率を自然にするため、中央の従来背景を80%へ縮小し、昼・夜の新しい広場素材を外周へ合成した `assets/backgrounds-zoomed/` を使用する。
 - 魚、カエル、猫、スズメ、背景花火は `.world-layer` にまとめ、背景と同じ80%へ縮小する。人物とHUDは縮小しない。
 - 通常時は従来背景と等倍の生物表示を使う。人物が現れる時だけ3.2秒でズームアウト背景と80%の生物表示へ移行し、人物の退場と同時に3.2秒でズームインして元の背景へ戻す。追加の中間画像は使わず、CSSアニメーションで連続的に補間する。
-- 外周素材は `assets/backgrounds-zoomed/source/plaza-day.png` と `plaza-night.png`。再合成は `tools/create_zoomed_backgrounds.py` を使う。
+- 外周素材は `assets/backgrounds-zoomed/source/stage-0-plaza.png` 〜 `stage-6-plaza.png`。各ステージの時間帯・鳥居・橋・社殿・月・装飾を個別に引き継ぎ、中央の元画像と外側の景色が食い違わないようにする。再合成は `tools/create_zoomed_backgrounds.py` を使う。
 
 ## 節目と演出
 
