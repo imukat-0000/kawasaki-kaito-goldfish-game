@@ -133,7 +133,7 @@ h1 {
 }
 
 .game-screen.is-camera-zooming-out .camera-transition {
-  animation: camera-zoom-out 3.2s steps(28, end) both;
+  animation: camera-zoom-out 3.2s steps(36, end) both;
 }
 
 .game-screen.is-camera-zooming-out .world-layer {
@@ -141,7 +141,7 @@ h1 {
 }
 
 .game-screen.is-camera-zooming-in .camera-transition {
-  animation: camera-zoom-in 3.2s steps(28, end) both;
+  animation: camera-zoom-in 3.2s steps(36, end) both;
 }
 
 .game-screen.is-camera-zooming-in .world-layer {
@@ -149,8 +149,10 @@ h1 {
 }
 
 @keyframes camera-zoom-out {
-  0% { opacity: 1; scale: 1; }
-  84% { opacity: 1; scale: 0.8; }
+  0%, 52% { opacity: 1; }
+  0% { scale: 1; }
+  78% { opacity: 0.72; }
+  92% { opacity: 0.2; }
   100% { opacity: 0; scale: 0.8; }
 }
 
@@ -160,9 +162,11 @@ h1 {
 }
 
 @keyframes camera-zoom-in {
-  0% { opacity: 1; scale: 0.8; }
-  84% { opacity: 1; scale: 1; }
-  100% { opacity: 0; scale: 1; }
+  0%, 58% { opacity: 0; }
+  0% { scale: 0.8; }
+  80% { opacity: 0.28; }
+  92% { opacity: 0.78; }
+  100% { opacity: 1; scale: 1; }
 }
 
 @keyframes world-zoom-in {

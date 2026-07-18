@@ -23,6 +23,7 @@ const BACKGROUNDS = [
   "assets/backgrounds-zoomed/tub_levelup5.webp",
   "assets/backgrounds-zoomed/tub_levelup6.webp"
 ];
+const preloadedBackgrounds = new Set();
 const GOLDFISH_SPRITES = [
   "assets/goldfish_sprite.png",
   "assets/goldfish_black.png",
@@ -661,12 +662,13 @@ function playCameraZoom(direction) {
   const zoomingOut = direction === "out";
   const zoomClass = zoomingOut ? "is-camera-zooming-out" : "is-camera-zooming-in";
   elements.gameScreen.classList.remove("is-camera-zooming-out", "is-camera-zooming-in");
-  elements.cameraTransition.src = zoomingOut ? peopleOriginalBackground : peopleZoomedBackground;
-  elements.scene.src = zoomingOut ? peopleZoomedBackground : peopleOriginalBackground;
+  elements.cameraTransition.src = peopleOriginalBackground;
+  elements.scene.src = peopleZoomedBackground;
   elements.gameScreen.classList.toggle("has-people", zoomingOut);
   void elements.gameScreen.offsetWidth;
   elements.gameScreen.classList.add(zoomClass);
   cameraZoomTimeoutId = window.setTimeout(() => {
+    if (!zoomingOut) elements.scene.src = peopleOriginalBackground;
     elements.gameScreen.classList.remove(zoomClass);
     cameraZoomTimeoutId = null;
   }, 3300);
@@ -724,6 +726,11 @@ function syncPeopleScene(stage, originalBackground, zoomedBackground) {
   peopleStage = stage;
   peopleOriginalBackground = originalBackground;
   peopleZoomedBackground = zoomedBackground;
+  if (!preloadedBackgrounds.has(zoomedBackground)) {
+    const preload = new Image();
+    preload.src = zoomedBackground;
+    preloadedBackgrounds.add(zoomedBackground);
+  }
   if (!peopleVisible) elements.scene.src = originalBackground;
   schedulePeopleVisit(stageChanged ? 2200 : undefined);
 }
