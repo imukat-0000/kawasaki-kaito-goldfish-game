@@ -1,7 +1,8 @@
 # Human and Tub Scene References
 
 Stage-specific 4:3 pixel-art references for positioning people around each tub.
-These are composition references, not runtime background replacements.
+These are deterministic composites, not AI-redrawn backgrounds or runtime
+background replacements.
 
 ## Included scenes
 
@@ -10,15 +11,15 @@ These are composition references, not runtime background replacements.
 - Stages 4-6: nighttime boy, nighttime girl, and adult yukata woman
 - `contact-sheet.jpg`: visual index of all 17 scene references
 
-Each scene keeps the matching zoomed stage layout and shows exactly one person
-leaning or crouching toward the center of the tub. Foreground lanterns and posts
-remain in front when they overlap the character.
+Each scene copies the matching zoomed stage image pixel for pixel and adds exactly
+one existing transparent character sprite looking toward the tub. Regenerate all
+scenes with `python3 tools/create_human_tub_scenes.py`.
 
 ## Generation brief
 
 - Preserve the supplied stage background, tub, water, architecture, perspective,
-  palette, and framing.
-- Add one supplied character at a natural human scale.
+  palette, and framing without generative edits.
+- Add one existing transparent character sprite at a natural human scale.
 - Pose the character looking into the center of the water without entering or
   standing on the tub.
 - Match the existing Japanese retro low-bit pixel-art style with crisp edges.

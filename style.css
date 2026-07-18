@@ -149,8 +149,10 @@ h1 {
 }
 
 @keyframes camera-zoom-out {
-  0%, 99% { opacity: 1; }
+  0%, 52% { opacity: 1; }
   0% { scale: 1; }
+  78% { opacity: 0.72; }
+  92% { opacity: 0.2; }
   100% { opacity: 0; scale: 0.8; }
 }
 
@@ -160,7 +162,10 @@ h1 {
 }
 
 @keyframes camera-zoom-in {
-  0% { opacity: 1; scale: 0.8; }
+  0%, 58% { opacity: 0; }
+  0% { scale: 0.8; }
+  80% { opacity: 0.28; }
+  92% { opacity: 0.78; }
   100% { opacity: 1; scale: 1; }
 }
 
