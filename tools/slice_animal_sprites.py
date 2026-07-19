@@ -44,6 +44,7 @@ SHEETS = {
         "file": "cat-stand-watch-tail-sprite-sheet.png",
         "rows": ["watch-tail"],
         "columns": 4,
+        "offsets": [-85, -7, 1, 45],
         "color_only": True,
     },
     "bird-watch": {

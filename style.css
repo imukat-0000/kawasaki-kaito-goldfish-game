@@ -755,72 +755,72 @@ h1 {
 
 .game-screen[data-stage="0"] {
   --boy-left: 35%;
-  --boy-bottom: 12%;
-  --boy-width: 25%;
+  --boy-bottom: 11%;
+  --boy-width: 26%;
   --girl-left: 65%;
-  --girl-bottom: 14%;
-  --girl-width: 25%;
+  --girl-bottom: 15%;
+  --girl-width: 24%;
 }
 
 .game-screen[data-stage="1"] {
   --boy-left: 35%;
-  --boy-bottom: 11%;
-  --boy-width: 25%;
+  --boy-bottom: 10%;
+  --boy-width: 26%;
   --girl-left: 65%;
-  --girl-bottom: 13%;
-  --girl-width: 25%;
+  --girl-bottom: 14%;
+  --girl-width: 24%;
 }
 
 .game-screen[data-stage="2"] {
   --boy-left: 35%;
-  --boy-bottom: 9%;
-  --boy-width: 25%;
+  --boy-bottom: 8%;
+  --boy-width: 26%;
   --girl-left: 65%;
-  --girl-bottom: 11%;
-  --girl-width: 25%;
+  --girl-bottom: 12%;
+  --girl-width: 24%;
 }
 
 .game-screen[data-stage="3"] {
   --boy-left: 35%;
-  --boy-bottom: 8%;
-  --boy-width: 25%;
+  --boy-bottom: 9%;
+  --boy-width: 24.5%;
   --girl-left: 65%;
-  --girl-bottom: 10%;
-  --girl-width: 25%;
+  --girl-bottom: 9%;
+  --girl-width: 26%;
 }
 
 .game-screen[data-stage="4"] {
   --boy-left: 35%;
-  --boy-bottom: 7%;
-  --boy-width: 25%;
+  --boy-bottom: 8%;
+  --boy-width: 24.5%;
   --girl-left: 65%;
-  --girl-bottom: 9%;
-  --girl-width: 25%;
-  --woman-left: 37%;
+  --girl-bottom: 8%;
+  --girl-width: 26%;
+  --woman-left: 33%;
   --woman-bottom: 30%;
   --woman-width: 36%;
 }
 
 .game-screen[data-stage="5"] {
   --boy-left: 35%;
-  --boy-bottom: 5.5%;
-  --boy-width: 25%;
+  --boy-bottom: 6.5%;
+  --boy-width: 24.5%;
   --girl-left: 65%;
-  --girl-bottom: 7.5%;
-  --girl-width: 25%;
-  --woman-left: 37%;
+  --girl-bottom: 6.5%;
+  --girl-width: 26%;
+  --woman-left: 32%;
   --woman-bottom: 28.5%;
   --woman-width: 36%;
 }
 
 .game-screen[data-stage="6"] {
   --boy-left: 35%;
-  --boy-bottom: 4%;
-  --boy-width: 25%;
+  --boy-bottom: 5%;
+  --boy-width: 24.5%;
   --girl-left: 65%;
-  --girl-bottom: 6%;
-  --girl-width: 25%;
-  --woman-left: 37%;
+  --girl-bottom: 5%;
+  --girl-width: 26%;
+  --woman-left: 32%;
   --woman-bottom: 27%;
   --woman-width: 36%;
 }
