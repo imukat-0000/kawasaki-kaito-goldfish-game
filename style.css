@@ -146,13 +146,13 @@ h1 {
   opacity: 1;
 }
 
-.game-screen[data-stage="0"] { --tub-front-top: 55%; }
-.game-screen[data-stage="1"] { --tub-front-top: 56%; }
-.game-screen[data-stage="2"] { --tub-front-top: 59%; }
-.game-screen[data-stage="3"] { --tub-front-top: 61%; }
-.game-screen[data-stage="4"] { --tub-front-top: 63%; }
-.game-screen[data-stage="5"] { --tub-front-top: 65%; }
-.game-screen[data-stage="6"] { --tub-front-top: 66%; }
+.game-screen[data-stage="0"] { --tub-front-top: 60%; }
+.game-screen[data-stage="1"] { --tub-front-top: 61%; }
+.game-screen[data-stage="2"] { --tub-front-top: 63%; }
+.game-screen[data-stage="3"] { --tub-front-top: 64%; }
+.game-screen[data-stage="4"] { --tub-front-top: 66%; }
+.game-screen[data-stage="5"] { --tub-front-top: 67%; }
+.game-screen[data-stage="6"] { --tub-front-top: 68%; }
 
 .camera-transition {
   position: absolute;
@@ -190,6 +190,10 @@ h1 {
 
 .game-screen.has-people .world-layer {
   scale: 0.8;
+}
+
+.game-screen.has-people .world-creatures {
+  z-index: 3;
 }
 
 .game-screen.is-camera-zooming-out .camera-transition {
@@ -681,7 +685,7 @@ h1 {
 .people-layer {
   position: absolute;
   inset: 0;
-  z-index: 8;
+  z-index: 6;
   overflow: hidden;
   pointer-events: none;
 }
@@ -701,6 +705,10 @@ h1 {
   height: auto;
   image-rendering: pixelated;
   filter: drop-shadow(3px 3px 0 rgba(7, 20, 12, 0.62));
+}
+
+.human-character[data-action="stand-look-in"] {
+  clip-path: inset(0 0 55% 0);
 }
 
 .human-girl {
@@ -743,52 +751,53 @@ h1 {
   transform: scaleX(-1);
 }
 
-.human-girl[data-action="look-in"] img {
+.human-girl[data-action="look-in"] img,
+.human-girl[data-action="stand-look-in"] img {
   transform: scaleX(-1);
 }
 
 .game-screen[data-stage="0"] {
-  --boy-left: 26%;
-  --boy-bottom: 21%;
+  --boy-left: 41%;
+  --boy-bottom: 15.5%;
   --boy-width: 30%;
-  --girl-left: 74%;
-  --girl-bottom: 17.5%;
+  --girl-left: 59%;
+  --girl-bottom: 12%;
   --girl-width: 31%;
 }
 
 .game-screen[data-stage="1"] {
-  --boy-left: 26%;
-  --boy-bottom: 20.5%;
+  --boy-left: 41%;
+  --boy-bottom: 13.5%;
   --boy-width: 30%;
-  --girl-left: 74%;
-  --girl-bottom: 17%;
+  --girl-left: 59%;
+  --girl-bottom: 11.5%;
   --girl-width: 31%;
 }
 
 .game-screen[data-stage="2"] {
-  --boy-left: 26%;
-  --boy-bottom: 16.5%;
+  --boy-left: 41%;
+  --boy-bottom: 14%;
   --boy-width: 29%;
-  --girl-left: 74%;
-  --girl-bottom: 13%;
+  --girl-left: 59%;
+  --girl-bottom: 12%;
   --girl-width: 30%;
 }
 
 .game-screen[data-stage="3"] {
-  --boy-left: 26%;
-  --boy-bottom: 15.5%;
+  --boy-left: 41%;
+  --boy-bottom: 14.5%;
   --boy-width: 29.2%;
-  --girl-left: 74%;
-  --girl-bottom: 14%;
+  --girl-left: 59%;
+  --girl-bottom: 13%;
   --girl-width: 28.8%;
 }
 
 .game-screen[data-stage="4"] {
-  --boy-left: 24%;
-  --boy-bottom: 14.1%;
+  --boy-left: 41%;
+  --boy-bottom: 13.1%;
   --boy-width: 29.2%;
-  --girl-left: 76%;
-  --girl-bottom: 12.5%;
+  --girl-left: 59%;
+  --girl-bottom: 11.5%;
   --girl-width: 28.8%;
   --woman-left: 37%;
   --woman-bottom: 30%;
@@ -796,11 +805,11 @@ h1 {
 }
 
 .game-screen[data-stage="5"] {
-  --boy-left: 24%;
-  --boy-bottom: 12.3%;
+  --boy-left: 41%;
+  --boy-bottom: 11.3%;
   --boy-width: 29.2%;
-  --girl-left: 76%;
-  --girl-bottom: 10.6%;
+  --girl-left: 59%;
+  --girl-bottom: 9.6%;
   --girl-width: 28.8%;
   --woman-left: 37%;
   --woman-bottom: 28.5%;
@@ -808,11 +817,11 @@ h1 {
 }
 
 .game-screen[data-stage="6"] {
-  --boy-left: 24%;
-  --boy-bottom: 10.4%;
+  --boy-left: 41%;
+  --boy-bottom: 9.4%;
   --boy-width: 29.2%;
-  --girl-left: 76%;
-  --girl-bottom: 9.2%;
+  --girl-left: 59%;
+  --girl-bottom: 8.2%;
   --girl-width: 28.8%;
   --woman-left: 37%;
   --woman-bottom: 27%;
@@ -870,10 +879,15 @@ h1 {
 
 .visitor-cat {
   left: 50%;
-  bottom: 1.5%;
+  bottom: 12%;
   z-index: 9;
   width: clamp(120px, 22%, 240px);
   transform: translateX(-50%);
+}
+
+.visitor-cat.is-idle {
+  z-index: 9;
+  width: clamp(112px, 19%, 210px);
 }
 
 .visitor-cat:not(.is-idle) {

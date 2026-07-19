@@ -454,7 +454,7 @@ function saveVisitorState() {
 
 function getVisitorAction(type, phase, side) {
   if (type === "cat") {
-    if (phase === "idle") return { group: "cat-watch", action: "watch-tail" };
+    if (phase === "idle") return { group: "cat-stand-watch", action: "watch-tail" };
     if (phase === "entering") return side === "left" ? "walk-right" : "walk-left";
     return side === "left" ? "walk-left" : "walk-right";
   }
@@ -637,7 +637,7 @@ function createHumanCharacter(role, character, index) {
 
   setPeopleTimeout(() => {
     if (!person.isConnected) return;
-    setHumanAction(person, "look-in");
+    setHumanAction(person, role === "woman" ? "look-in" : "stand-look-in");
   }, PEOPLE_ENTRY_MS + index * 180);
 }
 

@@ -17,6 +17,9 @@ DIRECTION_ROWS = (("walk-left", 0), ("watch-back", 1))
 LOOK_IN_SHEETS = tuple(
     (character, f"{character}-look-in.png") for character in CHARACTERS
 )
+STAND_LOOK_IN_SHEETS = tuple(
+    (character, f"{character}-stand-look-in.png") for character in DIRECTION_CHARACTERS
+)
 
 
 def padded_sheet(path: Path) -> Image.Image:
@@ -78,6 +81,23 @@ def main() -> None:
                 (row + 1) * cell_height,
             ))
             frame.save(output / f"look-in-{index + 1:02d}.png", optimize=True)
+
+    for character, filename in STAND_LOOK_IN_SHEETS:
+        sheet = Image.open(SHEET_ROOT / filename).convert("RGBA")
+        cell_width = sheet.width // 2
+        cell_height = sheet.height // 2
+        output = FRAME_ROOT / character
+        output.mkdir(parents=True, exist_ok=True)
+        for index in range(4):
+            column = index % 2
+            row = index // 2
+            frame = sheet.crop((
+                column * cell_width,
+                row * cell_height,
+                (column + 1) * cell_width,
+                (row + 1) * cell_height,
+            ))
+            frame.save(output / f"stand-look-in-{index + 1:02d}.png", optimize=True)
 
 
 if __name__ == "__main__":

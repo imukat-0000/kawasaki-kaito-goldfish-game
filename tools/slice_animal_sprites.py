@@ -40,6 +40,12 @@ SHEETS = {
         "offsets": [-5, -3, 9, 13],
         "color_only": True,
     },
+    "cat-stand-watch": {
+        "file": "cat-stand-watch-tail-sprite-sheet.png",
+        "rows": ["watch-tail"],
+        "columns": 4,
+        "color_only": True,
+    },
     "bird-watch": {
         "file": "bird-watch-head-sprite-sheet.png",
         "rows": ["watch-head"],

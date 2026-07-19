@@ -140,6 +140,16 @@
 - `assets/animal-sprites/`: ゲームボーイ風の猫、鳥、おたまじゃくし、カエル、成長変化の透過スプライトシートと個別フレーム。実装時は三毛猫・スズメ・自然色のおたまじゃくしとカエルを収録した `color-v2/` を優先する。
 - `tools/slice_animal_sprites.py`: 動物スプライトシートから方向・動作別の個別PNGを再生成する。
 
+## 立って桶を覗く人物・猫（2026-07-19）
+
+- 子どもは到着後に `stand-look-in` へ切り替わり、立ったまま桶の手前の木枠へ両手を掛ける。昼夜とも頭と手だけが木枠より上に見え、足と胴体は `clip-path` で再表示されない。
+- 昼の女の子は黒髪のおかっぱ、白地に水色の花柄ワンピース。昼の男の子は虫取り網、夜は男の子が紺色の甚平と狐面、女の子が桃色の浴衣と横付けの狐面。
+- 新規シートは `assets/human-sprites/sheets/*-stand-look-in.png`、個別フレームは `assets/human-sprites/frames/*/stand-look-in-01.png` ～ `04.png`。生成元のマゼンタ背景版は `assets/human-sprites/source/` に保存した。
+- ステージ別の人物位置と桶前面の切り抜き開始位置は `style.css` の `--boy-*`、`--girl-*`、`--tub-front-top` で調整する。ステージ0と6で実画面確認済み。
+- 浴衣の成人女性は従来の `look-in` を維持し、ステージ4以降の桶奥側に配置する。
+- 猫は到着後に `cat-stand-watch/watch-tail` を使う。後ろ足で立って前足を木枠へ掛け、4フレームで尻尾だけを左から右へ振る。シートは `assets/animal-sprites/color-v2/cat-stand-watch-tail-sprite-sheet.png`。
+- 人物の退場時は `walk` / `walk-left` に戻るため立ち姿の切り抜きは解除され、約3.4秒後にDOMから削除される。画像読込エラーなし、猫の尻尾フレーム切り替えをブラウザで確認済み。
+
 ## ローカル確認
 
 プロジェクトフォルダで静的サーバーを起動する。
