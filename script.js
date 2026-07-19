@@ -574,7 +574,7 @@ window.setInterval(() => {
   });
   elements.peopleLayer.querySelectorAll(".human-character[data-action]").forEach((person) => {
     const action = person.dataset.action;
-    if (action === "watch-back" || action === "idle") return;
+    if (action === "watch-back" || action === "idle" || action === "look-in" || action === "stand-look-in" || action === "stand-reach") return;
     const frame = (visitorFrame + Number(person.dataset.frameOffset || 0)) % 4 + 1;
     person.querySelector("img").src = getHumanFrame(
       person.dataset.character,
@@ -637,7 +637,7 @@ function createHumanCharacter(role, character, index) {
 
   setPeopleTimeout(() => {
     if (!person.isConnected) return;
-    setHumanAction(person, role === "woman" ? "look-in" : "stand-look-in");
+    setHumanAction(person, role === "woman" ? "look-in" : "stand-reach");
   }, PEOPLE_ENTRY_MS + index * 180);
 }
 

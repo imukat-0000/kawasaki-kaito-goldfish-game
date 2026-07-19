@@ -707,10 +707,6 @@ h1 {
   filter: drop-shadow(3px 3px 0 rgba(7, 20, 12, 0.62));
 }
 
-.human-character[data-action="stand-look-in"] {
-  clip-path: inset(0 0 55% 0);
-}
-
 .human-girl {
   left: var(--girl-left);
   top: auto;
@@ -752,80 +748,81 @@ h1 {
 }
 
 .human-girl[data-action="look-in"] img,
-.human-girl[data-action="stand-look-in"] img {
+.human-girl[data-action="stand-look-in"] img,
+.human-girl[data-action="stand-reach"] img {
   transform: scaleX(-1);
 }
 
 .game-screen[data-stage="0"] {
-  --boy-left: 41%;
-  --boy-bottom: 15.5%;
-  --boy-width: 30%;
-  --girl-left: 59%;
-  --girl-bottom: 12%;
-  --girl-width: 31%;
+  --boy-left: 35%;
+  --boy-bottom: 12%;
+  --boy-width: 25%;
+  --girl-left: 65%;
+  --girl-bottom: 14%;
+  --girl-width: 25%;
 }
 
 .game-screen[data-stage="1"] {
-  --boy-left: 41%;
-  --boy-bottom: 13.5%;
-  --boy-width: 30%;
-  --girl-left: 59%;
-  --girl-bottom: 11.5%;
-  --girl-width: 31%;
+  --boy-left: 35%;
+  --boy-bottom: 11%;
+  --boy-width: 25%;
+  --girl-left: 65%;
+  --girl-bottom: 13%;
+  --girl-width: 25%;
 }
 
 .game-screen[data-stage="2"] {
-  --boy-left: 41%;
-  --boy-bottom: 14%;
-  --boy-width: 29%;
-  --girl-left: 59%;
-  --girl-bottom: 12%;
-  --girl-width: 30%;
+  --boy-left: 35%;
+  --boy-bottom: 9%;
+  --boy-width: 25%;
+  --girl-left: 65%;
+  --girl-bottom: 11%;
+  --girl-width: 25%;
 }
 
 .game-screen[data-stage="3"] {
-  --boy-left: 41%;
-  --boy-bottom: 14.5%;
-  --boy-width: 29.2%;
-  --girl-left: 59%;
-  --girl-bottom: 13%;
-  --girl-width: 28.8%;
+  --boy-left: 35%;
+  --boy-bottom: 8%;
+  --boy-width: 25%;
+  --girl-left: 65%;
+  --girl-bottom: 10%;
+  --girl-width: 25%;
 }
 
 .game-screen[data-stage="4"] {
-  --boy-left: 41%;
-  --boy-bottom: 13.1%;
-  --boy-width: 29.2%;
-  --girl-left: 59%;
-  --girl-bottom: 11.5%;
-  --girl-width: 28.8%;
+  --boy-left: 35%;
+  --boy-bottom: 7%;
+  --boy-width: 25%;
+  --girl-left: 65%;
+  --girl-bottom: 9%;
+  --girl-width: 25%;
   --woman-left: 37%;
   --woman-bottom: 30%;
-  --woman-width: 25%;
+  --woman-width: 36%;
 }
 
 .game-screen[data-stage="5"] {
-  --boy-left: 41%;
-  --boy-bottom: 11.3%;
-  --boy-width: 29.2%;
-  --girl-left: 59%;
-  --girl-bottom: 9.6%;
-  --girl-width: 28.8%;
+  --boy-left: 35%;
+  --boy-bottom: 5.5%;
+  --boy-width: 25%;
+  --girl-left: 65%;
+  --girl-bottom: 7.5%;
+  --girl-width: 25%;
   --woman-left: 37%;
   --woman-bottom: 28.5%;
-  --woman-width: 25%;
+  --woman-width: 36%;
 }
 
 .game-screen[data-stage="6"] {
-  --boy-left: 41%;
-  --boy-bottom: 9.4%;
-  --boy-width: 29.2%;
-  --girl-left: 59%;
-  --girl-bottom: 8.2%;
-  --girl-width: 28.8%;
+  --boy-left: 35%;
+  --boy-bottom: 4%;
+  --boy-width: 25%;
+  --girl-left: 65%;
+  --girl-bottom: 6%;
+  --girl-width: 25%;
   --woman-left: 37%;
   --woman-bottom: 27%;
-  --woman-width: 25%;
+  --woman-width: 36%;
 }
 
 /* Toe anchors measured against each stage's rear rim. */
@@ -879,7 +876,7 @@ h1 {
 
 .visitor-cat {
   left: 50%;
-  bottom: 12%;
+  bottom: -4%;
   z-index: 9;
   width: clamp(120px, 22%, 240px);
   transform: translateX(-50%);
@@ -887,7 +884,7 @@ h1 {
 
 .visitor-cat.is-idle {
   z-index: 9;
-  width: clamp(112px, 19%, 210px);
+  width: clamp(144px, 24%, 288px);
 }
 
 .visitor-cat:not(.is-idle) {
