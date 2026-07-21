@@ -78,12 +78,8 @@
   translate: 2px 2px;
 }
 
-.test-button.is-qr {
+.test-button.is-nfc {
   background: #ff7a59;
-}
-
-.test-button.is-sns {
-  background: #7ecbc3;
 }
 
 .test-button.is-next {

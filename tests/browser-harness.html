@@ -12,25 +12,13 @@
     const testMode = testParams.get("mode") || "success";
     window.__disableLiveRefresh = testMode !== "live-refresh";
 
-    const dateParts = new Intl.DateTimeFormat("en-CA", {
-      timeZone: "Asia/Tokyo",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit"
-    }).formatToParts(new Date());
-    const dateValues = Object.fromEntries(dateParts.map(({ type, value }) => [type, value]));
-    const dateKey = `${dateValues.year}-${dateValues.month}-${dateValues.day}`;
-
     if (testParams.get("reset") === "1") {
       localStorage.removeItem("counter_last_success");
-      localStorage.removeItem(`${dateKey}_qr`);
-      localStorage.removeItem(`${dateKey}_sns`);
     }
 
     if (testMode.endsWith("-cache")) {
       localStorage.setItem("counter_last_success", JSON.stringify({
-        qr: 24,
-        sns: 18,
+        nfc: 42,
         total: 42,
         savedAt: Date.now()
       }));
@@ -62,8 +50,8 @@
       }
 
       const payload = testMode === "invalid"
-        ? { qr: 2, sns: 3, total: 9 }
-        : { qr: 2, sns: 3, total: 5 };
+        ? { nfc: 2, total: 9 }
+        : { nfc: 5, total: 5 };
       return Promise.resolve({
         ok: true,
         status: 200,
@@ -93,7 +81,7 @@
         </div>
         <div class="hud hud-total"><span class="hud-label">GROWTH COUNT</span><strong id="totalCount">---</strong></div>
         <div class="hud hud-level"><span class="hud-label">STAGE</span><strong id="stageLabel">01</strong></div>
-        <div class="source-breakdown"><span>QR <strong id="qrCount">---</strong></span><span>SNS <strong id="snsCount">---</strong></span></div>
+        <div class="source-breakdown"><span>NFC <strong id="nfcCount">---</strong></span></div>
         <div class="world-layer world-creatures">
           <div class="fish-pond" id="fishPond" aria-hidden="true"></div>
         </div>
@@ -126,6 +114,6 @@
     </section>
     <footer class="campaign-footer"><p>browser test</p><p class="source-note" id="sourceNote">通常アクセス</p></footer>
   </main>
-  <script src="../script.js?v=20260721-live-refresh-5s1"></script>
+  <script src="../script.js?v=20260722-nfc-count1"></script>
 </body>
 </html>

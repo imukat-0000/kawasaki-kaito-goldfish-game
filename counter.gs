@@ -10,8 +10,7 @@
  */
 
 const SHEET_NAME = "counter";
-const QR_CELL = "B2";
-const SNS_CELL = "B3";
+const NFC_CELL = "B2";
 
 function setupSheet() {
   const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
@@ -23,17 +22,16 @@ function setupSheet() {
   const sheet =
     spreadsheet.getSheetByName(SHEET_NAME) ||
     spreadsheet.insertSheet(SHEET_NAME);
-  sheet.getRange("A1:B3").setValues([
+  sheet.getRange("A1:B2").setValues([
     ["source", "count"],
-    ["qr_count", 0],
-    ["sns_count", 0]
+    ["nfc_count", toCount_(sheet.getRange(NFC_CELL).getValue())]
   ]);
   sheet.setFrozenRows(1);
 }
 
 function doGet(e) {
   const source = e && e.parameter ? String(e.parameter.src || "").toLowerCase() : "";
-  const shouldIncrement = source === "qr" || source === "sns";
+  const shouldIncrement = source === "nfc";
   const lock = LockService.getScriptLock();
 
   try {
@@ -41,15 +39,13 @@ function doGet(e) {
     const sheet = getCounterSheet_();
 
     if (shouldIncrement) {
-      const targetCell = source === "qr" ? QR_CELL : SNS_CELL;
-      const range = sheet.getRange(targetCell);
+      const range = sheet.getRange(NFC_CELL);
       range.setValue(toCount_(range.getValue()) + 1);
       SpreadsheetApp.flush();
     }
 
-    const qr = toCount_(sheet.getRange(QR_CELL).getValue());
-    const sns = toCount_(sheet.getRange(SNS_CELL).getValue());
-    return json_({ qr: qr, sns: sns, total: qr + sns });
+    const nfc = toCount_(sheet.getRange(NFC_CELL).getValue());
+    return json_({ nfc: nfc, total: nfc });
   } catch (error) {
     return json_({ error: error.message || String(error) });
   } finally {

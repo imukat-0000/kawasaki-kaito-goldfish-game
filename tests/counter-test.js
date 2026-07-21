@@ -3,22 +3,19 @@ const TEST_COUNTER_KEY = "goldfish_counter_test_state_v1";
 function readTestCounter() {
   try {
     const parsed = JSON.parse(localStorage.getItem(TEST_COUNTER_KEY));
-    const qr = Math.max(0, Math.floor(Number(parsed?.qr) || 0));
-    const sns = Math.max(0, Math.floor(Number(parsed?.sns) || 0));
-    return { qr, sns, total: qr + sns };
+    const nfc = Math.max(0, Math.floor(Number(parsed?.nfc ?? (Number(parsed?.qr) || 0) + (Number(parsed?.sns) || 0)) || 0));
+    return { nfc, total: nfc };
   } catch (error) {
-    return { qr: 0, sns: 0, total: 0 };
+    return { nfc: 0, total: 0 };
   }
 }
 
 let testCounter = readTestCounter();
 
-const testQrInput = document.querySelector("#testQrInput");
-const testSnsInput = document.querySelector("#testSnsInput");
+const testNfcInput = document.querySelector("#testNfcInput");
 
 function syncTestInputs() {
-  testQrInput.value = String(testCounter.qr);
-  testSnsInput.value = String(testCounter.sns);
+  testNfcInput.value = String(testCounter.nfc);
 }
 
 function saveTestCounter() {
@@ -32,9 +29,8 @@ function saveTestCounter() {
 function applyTestCounter(next, playEffect = true, simulateCount = true) {
   const previousTotal = testCounter.total;
   const previousCelebrationMilestone = getCelebrationMilestone(testCounter.total);
-  const qr = Math.max(0, Math.floor(Number(next.qr) || 0));
-  const sns = Math.max(0, Math.floor(Number(next.sns) || 0));
-  testCounter = { qr, sns, total: qr + sns };
+  const nfc = Math.max(0, Math.floor(Number(next.nfc) || 0));
+  testCounter = { nfc, total: nfc };
   saveTestCounter();
   const countAdvanced = simulateCount && testCounter.total === previousTotal + 1;
   render(testCounter, { countAdvanced, previousTotal });
@@ -53,26 +49,19 @@ function applyTestCounter(next, playEffect = true, simulateCount = true) {
 
 function setTestTotal(total, playEffect = true, simulateCount = false) {
   const normalizedTotal = Math.max(0, Math.floor(Number(total) || 0));
-  const qr = Math.floor(normalizedTotal * 0.6);
-  applyTestCounter({ qr, sns: normalizedTotal - qr }, playEffect, simulateCount);
+  applyTestCounter({ nfc: normalizedTotal }, playEffect, simulateCount);
 }
 
-document.querySelectorAll("[data-add-qr]").forEach((button) => {
+document.querySelectorAll("[data-add-nfc]").forEach((button) => {
   button.addEventListener("click", () => {
-    applyTestCounter({ qr: testCounter.qr + 1, sns: testCounter.sns });
-  });
-});
-
-document.querySelectorAll("[data-add-sns]").forEach((button) => {
-  button.addEventListener("click", () => {
-    applyTestCounter({ qr: testCounter.qr, sns: testCounter.sns + 1 });
+    applyTestCounter({ nfc: testCounter.nfc + 1 });
   });
 });
 
 document.querySelectorAll("[data-add-total]").forEach((button) => {
   button.addEventListener("click", () => {
     const amount = Number(button.dataset.addTotal) || 0;
-    applyTestCounter({ qr: testCounter.qr + amount, sns: testCounter.sns });
+    applyTestCounter({ nfc: testCounter.nfc + amount });
   });
 });
 
@@ -104,7 +93,7 @@ document.querySelector("#nextMilestoneButton").addEventListener("click", () => {
 });
 
 document.querySelector("#resetTestButton").addEventListener("click", () => {
-  testCounter = { qr: 0, sns: 0, total: 0 };
+  testCounter = { nfc: 0, total: 0 };
   try {
     localStorage.removeItem(TEST_COUNTER_KEY);
   } catch (error) {
@@ -117,7 +106,7 @@ document.querySelector("#resetTestButton").addEventListener("click", () => {
 
 document.querySelector("#counterTestForm").addEventListener("submit", (event) => {
   event.preventDefault();
-  applyTestCounter({ qr: testQrInput.value, sns: testSnsInput.value });
+  applyTestCounter({ nfc: testNfcInput.value });
 });
 
 document.querySelector("#sourceNote").textContent = "テストモード";

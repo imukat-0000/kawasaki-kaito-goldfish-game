@@ -56,9 +56,8 @@
           <span class="hud-label">STAGE</span>
           <strong id="stageLabel">00</strong>
         </div>
-        <div class="source-breakdown" aria-label="テスト値の内訳">
-          <span>QR <strong id="qrCount">0</strong></span>
-          <span>SNS <strong id="snsCount">0</strong></span>
+        <div class="source-breakdown" aria-label="NFCタッチ数のテスト値">
+          <span>NFC <strong id="nfcCount">0</strong></span>
         </div>
 
         <div class="world-layer world-creatures">
@@ -67,7 +66,7 @@
         <aside class="growth-showcase" id="growthShowcase" aria-live="polite">
           <span class="growth-showcase-title">GROWING</span>
           <img id="growthShowcaseAnimal" alt="">
-          <strong id="growthShowcaseLabel">金魚 0 / 10</strong>
+          <strong id="growthShowcaseLabel">金魚 0 / 5</strong>
         </aside>
         <div class="world-layer world-visitors">
           <div class="visitor-layer" id="visitorLayer" aria-hidden="true"></div>
@@ -116,8 +115,7 @@
       </div>
 
       <div class="counter-actions" aria-label="カウント加算">
-        <button type="button" class="test-button is-qr" data-add-qr="1">QR +1</button>
-        <button type="button" class="test-button is-sns" data-add-sns="1">SNS +1</button>
+        <button type="button" class="test-button is-nfc" data-add-nfc="1">NFC +1</button>
         <button type="button" class="test-button" data-add-total="10">合計 +10</button>
         <button type="button" class="test-button" data-add-total="100">合計 +100</button>
         <button type="button" class="test-button is-next" id="nextMilestoneButton">次の節目</button>
@@ -125,8 +123,7 @@
       </div>
 
       <form class="counter-form" id="counterTestForm">
-        <label>QR<input type="number" id="testQrInput" min="0" step="1" inputmode="numeric"></label>
-        <label>SNS<input type="number" id="testSnsInput" min="0" step="1" inputmode="numeric"></label>
+        <label>NFC<input type="number" id="testNfcInput" min="0" step="1" inputmode="numeric"></label>
         <button type="submit" class="test-button is-apply">この値を反映</button>
       </form>
 
@@ -144,19 +141,18 @@
       <div class="growth-test-row" aria-label="成長見本">
         <button type="button" data-growth-total="0">START</button>
         <button type="button" data-growth-total="1">金魚 1</button>
-        <button type="button" data-growth-total="5">金魚 5</button>
-        <button type="button" data-growth-total="9">金魚 9</button>
-        <button type="button" data-growth-total="10">鯉へ進化</button>
-        <button type="button" data-growth-total="11">おたま 1</button>
-        <button type="button" data-growth-total="15">おたま 5</button>
-        <button type="button" data-growth-total="17">カエル前</button>
-        <button type="button" data-growth-total="18">成長完了・泳ぐ</button>
-        <button type="button" data-growth-total="19">遊泳中</button>
-        <button type="button" data-growth-total="20">次の育成前</button>
-        <button type="button" data-growth-total="32">逃走</button>
-        <button type="button" data-growth-total="38">大きな赤出目金</button>
-        <button type="button" data-growth-total="28">レア出目金</button>
-        <button type="button" data-growth-total="224">大きな金魚</button>
+        <button type="button" data-growth-total="4">金魚 4</button>
+        <button type="button" data-growth-total="5">鯉へ進化</button>
+        <button type="button" data-growth-total="6">おたま 1</button>
+        <button type="button" data-growth-total="10">おたま 5</button>
+        <button type="button" data-growth-total="12">カエル前</button>
+        <button type="button" data-growth-total="13">成長完了・泳ぐ</button>
+        <button type="button" data-growth-total="14">遊泳中</button>
+        <button type="button" data-growth-total="15">次の育成前</button>
+        <button type="button" data-growth-total="27">逃走</button>
+        <button type="button" data-growth-total="33">大きな赤出目金</button>
+        <button type="button" data-growth-total="129">レア出目金</button>
+        <button type="button" data-growth-total="234">大きな金魚</button>
       </div>
 
       <div class="visitor-test-row" aria-label="レアキャラクター見本">
@@ -213,7 +209,7 @@
     </footer>
   </main>
 
-  <script src="script.js?v=20260721-live-refresh-5s1"></script>
-  <script src="tests/counter-test.js?v=20260721-stage-milestones1"></script>
+  <script src="script.js?v=20260722-nfc-count1"></script>
+  <script src="tests/counter-test.js?v=20260722-nfc-count1"></script>
 </body>
 </html>

@@ -37,7 +37,7 @@ const DEMEKIN_RARE_EVOLUTION_SPRITES = [
 ];
 const LARGE_GOLDFISH_CHANCE = 0.22;
 const DEMEKIN_RARE_EVOLUTION_CHANCE = 0.2;
-const GROWTH_CYCLE_LENGTH = 10;
+const GROWTH_CYCLE_LENGTH = 5;
 const FROG_SWIM_START_PROGRESS = 8;
 const TADPOLE_GROWTH_SCALES = [0.52, 0.46, 0.55, 0.59, 0.71, 0.83, 0.89];
 const MAX_VISIBLE_KOI = 24;
@@ -142,8 +142,7 @@ const elements = {
   visitorLayer: document.querySelector("#visitorLayer"),
   peopleLayer: document.querySelector("#peopleLayer"),
   total: document.querySelector("#totalCount"),
-  qr: document.querySelector("#qrCount"),
-  sns: document.querySelector("#snsCount"),
+  nfc: document.querySelector("#nfcCount"),
   stage: document.querySelector("#stageLabel"),
   progressTrack: document.querySelector("#progressTrack"),
   progressFill: document.querySelector("#progressFill"),
@@ -155,20 +154,9 @@ const elements = {
   sourceNote: document.querySelector("#sourceNote")
 };
 
-function getJstDateKey() {
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Tokyo",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit"
-  }).formatToParts(new Date());
-  const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
-  return `${values.year}-${values.month}-${values.day}`;
-}
-
 function getValidSource() {
   const value = new URLSearchParams(window.location.search).get("src");
-  return value === "qr" || value === "sns" ? value : null;
+  return value === "nfc" ? value : null;
 }
 
 function getStoredValue(key) {
@@ -315,16 +303,16 @@ function isSamplePreview() {
 }
 
 function normalizeCounterData(data) {
-  const values = [data?.qr, data?.sns, data?.total];
+  const values = [data?.nfc, data?.total];
   if (!values.every((value) => Number.isFinite(value) && value >= 0)) {
     throw new Error("Counter API response is invalid");
   }
 
-  const [qr, sns, total] = values.map(Math.floor);
-  if (total !== qr + sns) {
+  const [nfc, total] = values.map(Math.floor);
+  if (total !== nfc) {
     throw new Error("Counter API totals are inconsistent");
   }
-  return { qr, sns, total };
+  return { nfc, total };
 }
 
 function cacheCounter(data) {
@@ -1107,14 +1095,12 @@ function dismissPeopleForTest() {
 
 function render(data, options = {}) {
   const total = Number(data.total) || 0;
-  const qr = Number(data.qr) || 0;
-  const sns = Number(data.sns) || 0;
+  const nfc = Number(data.nfc) || 0;
   const stage = getStage(total);
   const growth = getGrowthState(total);
 
   elements.total.textContent = total.toLocaleString("ja-JP");
-  elements.qr.textContent = qr.toLocaleString("ja-JP");
-  elements.sns.textContent = sns.toLocaleString("ja-JP");
+  elements.nfc.textContent = nfc.toLocaleString("ja-JP");
   elements.stage.textContent = String(stage).padStart(2, "0");
   const originalBackground = ORIGINAL_BACKGROUNDS[Math.min(stage, ORIGINAL_BACKGROUNDS.length - 1)];
   elements.gameScreen.dataset.stage = String(stage);
@@ -1183,8 +1169,7 @@ async function fetchCounter(source) {
 
   if (sampleTotal !== null) {
     return {
-      qr: Math.floor(sampleTotal * 0.6),
-      sns: Math.ceil(sampleTotal * 0.4),
+      nfc: sampleTotal,
       total: sampleTotal,
       demo: true,
       preview: true
@@ -1197,15 +1182,14 @@ async function fetchCounter(source) {
       ? Math.floor(Math.max(0, requestedTotal))
       : 0;
     return {
-      qr: Math.floor(demoTotal * 0.6),
-      sns: Math.ceil(demoTotal * 0.4),
+      nfc: demoTotal,
       total: demoTotal,
       demo: true
     };
   }
 
   if (API_URL.includes("YOUR_APPS_SCRIPT")) {
-    return { qr: 0, sns: 0, total: 0, demo: true };
+    return { nfc: 0, total: 0, demo: true };
   }
 
   const url = new URL(API_URL);
@@ -1281,20 +1265,14 @@ function startLiveCounterRefresh() {
 
 async function initialize() {
   const source = getValidSource();
-  const dailyKey = source ? `${getJstDateKey()}_${source}` : null;
-  const shouldCount = Boolean(source && !hasStoredFlag(dailyKey));
+  const shouldCount = source === "nfc";
   const requestSource = shouldCount ? source : null;
   const previousCounter = readCachedCounter();
 
-  // Reserve before the request so simultaneous tabs cannot both increment.
-  if (shouldCount && !isLocalDemo() && !isSamplePreview()) storeFlag(dailyKey);
-
   elements.sourceNote.textContent = isSamplePreview()
     ? "サンプル表示"
-    : source === "qr"
-    ? "会場QRから参加"
-    : source === "sns"
-      ? "SNSから参加"
+    : source === "nfc"
+    ? "NFCタッチで参加"
       : "通常アクセス";
 
   try {
