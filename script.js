@@ -303,16 +303,21 @@ function isSamplePreview() {
 }
 
 function normalizeCounterData(data) {
-  const values = [data?.nfc, data?.total];
+  // Keep the display available while the Apps Script deployment changes from QR/SNS to NFC.
+  const legacyTotal = Number.isFinite(data?.qr) && Number.isFinite(data?.sns)
+    ? Math.floor(data.qr) + Math.floor(data.sns)
+    : NaN;
+  const nfc = Number.isFinite(data?.nfc) ? data.nfc : legacyTotal;
+  const values = [nfc, data?.total];
   if (!values.every((value) => Number.isFinite(value) && value >= 0)) {
     throw new Error("Counter API response is invalid");
   }
 
-  const [nfc, total] = values.map(Math.floor);
-  if (total !== nfc) {
+  const [normalizedNfc, total] = values.map(Math.floor);
+  if (total !== normalizedNfc) {
     throw new Error("Counter API totals are inconsistent");
   }
-  return { nfc, total };
+  return { nfc: normalizedNfc, total };
 }
 
 function cacheCounter(data) {
