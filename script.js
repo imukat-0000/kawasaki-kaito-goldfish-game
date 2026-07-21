@@ -4,7 +4,8 @@
  */
 const API_URL = "https://script.google.com/macros/s/AKfycbwJKRyeAw9jiC-jmvJ2fIgRdmdHpu1CVCu61cEC9OojBjMtszdU4fdj99eBIPz0ogwh/exec";
 
-const MILESTONES = [100, 500, 1000, 10000, 100000, 1000000];
+const MILESTONES = [10, 30, 50, 70, 90, 100];
+const CELEBRATION_MILESTONES = [1, ...MILESTONES];
 const ORIGINAL_BACKGROUNDS = [
   "assets/tub_base.png",
   "assets/backgrounds-no-static-fireworks/tub_levelup1.png",
@@ -20,14 +21,22 @@ const GOLDFISH_SPRITES = [
   "assets/goldfish_sprite.png",
   "assets/goldfish_black.png",
   "assets/demekin_red.png",
-  "assets/demekin_black.png",
-  "assets/demekin_gold.png"
+  "assets/demekin_black.png"
 ];
 const KOI_SPRITES = [
   "assets/koi_sprite.png",
   "assets/koi_sanke.png",
   "assets/koi_gold.png"
 ];
+const STANDARD_GOLDFISH_SPRITES = GOLDFISH_SPRITES.slice(0, 2);
+const DEMEKIN_SPRITES = GOLDFISH_SPRITES.slice(2);
+const DEMEKIN_RARE_EVOLUTION_SPRITES = [
+  "assets/demekin_gold.png",
+  "assets/demekin_jewel.png",
+  "assets/demekin_verdigris.png"
+];
+const LARGE_GOLDFISH_CHANCE = 0.22;
+const DEMEKIN_RARE_EVOLUTION_CHANCE = 0.2;
 const GROWTH_CYCLE_LENGTH = 10;
 const FROG_SWIM_START_PROGRESS = 8;
 const TADPOLE_GROWTH_SCALES = [0.52, 0.46, 0.55, 0.59, 0.71, 0.83, 0.89];
@@ -35,9 +44,12 @@ const MAX_VISIBLE_KOI = 24;
 const FROG_STAY_COUNTS = 12;
 const ANIMAL_FRAME_ROOT = "assets/animal-sprites/color-v2/frames";
 const HUMAN_FRAME_ROOT = "assets/human-sprites/frames";
+const HUMAN_FRAME_CACHE_VERSION = "20260721-raw-source1";
+const PEOPLE_ENABLED = false;
 const VISITOR_STORAGE_KEY = document.body.classList.contains("test-page")
   ? "growth_game_visitors_test_v1"
   : "growth_game_visitors_v1";
+const STAGE_LAYOUT_STORAGE_KEY = "goldfish_stage_layout_v1";
 const VISITOR_CONFIG = {
   cat: { chance: 0.012, minStay: 5, maxStay: 9 },
   bird: { chance: 0.016, minStay: 4, maxStay: 8 }
@@ -100,7 +112,17 @@ const BACKGROUND_FIREWORKS = [
     { x: 29, y: 16, size: 6 }, { x: 72, y: 16, size: 6 }
   ]
 ];
+const POND_POSITIONS = [
+  { x: 79, y: 48 }, { x: 21, y: 48 }, { x: 70, y: 25 }, { x: 30, y: 25 },
+  { x: 70, y: 74 }, { x: 30, y: 74 }, { x: 56, y: 18 }, { x: 44, y: 18 },
+  { x: 56, y: 81 }, { x: 44, y: 81 }, { x: 78, y: 61 }, { x: 22, y: 61 },
+  { x: 78, y: 36 }, { x: 22, y: 36 }, { x: 64, y: 66 }, { x: 36, y: 66 },
+  { x: 64, y: 33 }, { x: 36, y: 33 }, { x: 61, y: 54 }, { x: 39, y: 54 },
+  { x: 61, y: 43 }, { x: 39, y: 43 }, { x: 53, y: 62 }, { x: 47, y: 30 }
+];
 const fallbackStorage = new Map();
+const goldfishOrdinalCache = new Map();
+const goldfishBlockPatternCache = new Map();
 
 const elements = {
   gameScreen: document.querySelector("#gameScreen"),
@@ -113,6 +135,9 @@ const elements = {
   cameraTransition: document.querySelector("#cameraTransition"),
   fireworks: document.querySelector("#fireworks"),
   fishPond: document.querySelector("#fishPond"),
+  growthShowcase: document.querySelector("#growthShowcase"),
+  growthShowcaseAnimal: document.querySelector("#growthShowcaseAnimal"),
+  growthShowcaseLabel: document.querySelector("#growthShowcaseLabel"),
   visitorLayer: document.querySelector("#visitorLayer"),
   peopleLayer: document.querySelector("#peopleLayer"),
   total: document.querySelector("#totalCount"),
@@ -169,6 +194,107 @@ function storeFlag(key) {
   setStoredValue(key, "1");
 }
 
+function readStageLayouts() {
+  try {
+    const layouts = JSON.parse(getStoredValue(STAGE_LAYOUT_STORAGE_KEY));
+    return layouts && typeof layouts === "object" ? layouts : {};
+  } catch (error) {
+    return {};
+  }
+}
+
+let stageLayouts = readStageLayouts();
+
+function getActiveStage() {
+  return Math.max(0, Math.min(6, Number(elements.gameScreen?.dataset.stage) || 0));
+}
+
+function getStageLayout(stage, role) {
+  const layout = stageLayouts[String(stage)]?.[role];
+  return layout && typeof layout === "object" ? layout : null;
+}
+
+function getStageRoute(stage, role) {
+  const route = getStageLayout(stage, role)?.route;
+  return route && typeof route === "object" ? route : null;
+}
+
+function applyStageLayout(element, role, stage = getActiveStage()) {
+  const layout = getStageLayout(stage, role);
+  if (!element) return;
+  ["--manual-left", "--manual-bottom", "--manual-top", "--manual-width", "--manual-walk-scale"].forEach((property) => {
+    element.style.removeProperty(property);
+  });
+  if (!layout) return;
+  if (Number.isFinite(Number(layout.left))) element.style.setProperty("--manual-left", `${layout.left}%`);
+  if (Number.isFinite(Number(layout.bottom))) element.style.setProperty("--manual-bottom", `${layout.bottom}%`);
+  if (Number.isFinite(Number(layout.top))) element.style.setProperty("--manual-top", `${layout.top}%`);
+  if (Number.isFinite(Number(layout.scale))) element.style.setProperty("--manual-width", `${layout.scale}%`);
+  if (Number.isFinite(Number(layout.route?.walkScale))) {
+    element.style.setProperty("--manual-walk-scale", String(layout.route.walkScale / 100));
+  }
+}
+
+function applyActiveStageLayouts() {
+  const stage = getActiveStage();
+  elements.visitorLayer.querySelectorAll("[data-layout-role]").forEach((element) => {
+    applyStageLayout(element, element.dataset.layoutRole, stage);
+  });
+  elements.peopleLayer.querySelectorAll("[data-layout-role]").forEach((element) => {
+    applyStageLayout(element, element.dataset.layoutRole, stage);
+  });
+}
+
+function updateStageLayout(role, patch, stage = getActiveStage()) {
+  const stageKey = String(stage);
+  const current = getStageLayout(stage, role) || {};
+  const next = { ...current, ...patch };
+  stageLayouts = {
+    ...stageLayouts,
+    [stageKey]: {
+      ...(stageLayouts[stageKey] || {}),
+      [role]: next
+    }
+  };
+  setStoredValue(STAGE_LAYOUT_STORAGE_KEY, JSON.stringify(stageLayouts));
+  applyActiveStageLayouts();
+  return next;
+}
+
+function updateStageRoute(role, patch, stage = getActiveStage()) {
+  return updateStageLayout(role, { route: { ...(getStageRoute(stage, role) || {}), ...patch } }, stage);
+}
+
+function resetStageRoute(role, stage = getActiveStage()) {
+  const stageKey = String(stage);
+  const current = getStageLayout(stage, role);
+  if (!current?.route) return;
+  const { route, ...layoutWithoutRoute } = current;
+  const stageLayout = { ...(stageLayouts[stageKey] || {}) };
+  if (Object.keys(layoutWithoutRoute).length) stageLayout[role] = layoutWithoutRoute;
+  else delete stageLayout[role];
+  if (Object.keys(stageLayout).length) stageLayouts = { ...stageLayouts, [stageKey]: stageLayout };
+  else {
+    const { [stageKey]: removed, ...remaining } = stageLayouts;
+    stageLayouts = remaining;
+  }
+  setStoredValue(STAGE_LAYOUT_STORAGE_KEY, JSON.stringify(stageLayouts));
+}
+
+function resetStageLayout(role, stage = getActiveStage()) {
+  const stageKey = String(stage);
+  const stageLayout = { ...(stageLayouts[stageKey] || {}) };
+  delete stageLayout[role];
+  if (Object.keys(stageLayout).length) {
+    stageLayouts = { ...stageLayouts, [stageKey]: stageLayout };
+  } else {
+    const { [stageKey]: removed, ...remaining } = stageLayouts;
+    stageLayouts = remaining;
+  }
+  setStoredValue(STAGE_LAYOUT_STORAGE_KEY, JSON.stringify(stageLayouts));
+  applyActiveStageLayouts();
+}
+
 function isLocalDemo() {
   const isLocalPreview = ["localhost", "127.0.0.1"].includes(window.location.hostname);
   return isLocalPreview && new URLSearchParams(window.location.search).has("demo");
@@ -179,7 +305,7 @@ function getSampleTotal() {
   if (!searchParams.has("sample")) return null;
 
   const value = Number(searchParams.get("sample"));
-  const allowedTotals = [0, ...MILESTONES];
+  const allowedTotals = [0, ...CELEBRATION_MILESTONES];
   return allowedTotals.includes(value) ? value : null;
 }
 
@@ -215,6 +341,10 @@ function readCachedCounter() {
 
 function getStage(total) {
   return MILESTONES.filter((milestone) => total >= milestone).length;
+}
+
+function getCelebrationMilestone(total) {
+  return [...CELEBRATION_MILESTONES].reverse().find((milestone) => total >= milestone) || null;
 }
 
 function renderBackgroundFireworks(stage) {
@@ -260,11 +390,7 @@ function renderBackgroundFireworks(stage) {
 }
 
 function seededPosition(index) {
-  const angle = seededRandom(index * 17.31 + 2.47) * Math.PI * 2;
-  const radius = Math.sqrt(seededRandom(index * 29.17 + 8.91));
-  const x = 50 + Math.cos(angle) * radius * 36;
-  const y = 50 + Math.sin(angle) * radius * 30;
-  return { x, y };
+  return POND_POSITIONS[Math.abs(Math.floor(index)) % POND_POSITIONS.length];
 }
 
 function seededRandom(seed) {
@@ -276,27 +402,107 @@ function pickSprite(sprites, seed) {
   return sprites[Math.floor(seededRandom(seed) * sprites.length)];
 }
 
+function getGoldfishOrdinal(cycleIndex) {
+  if (goldfishOrdinalCache.has(cycleIndex)) return goldfishOrdinalCache.get(cycleIndex);
+
+  let ordinal = 0;
+  for (let index = 0; index < cycleIndex; index += 1) {
+    if (!isFrogCycle(index)) ordinal += 1;
+  }
+  goldfishOrdinalCache.set(cycleIndex, ordinal);
+  return ordinal;
+}
+
+function isDemekinGoldfishOrdinal(ordinal) {
+  const blockIndex = Math.floor(ordinal / 10);
+  const slotIndex = ordinal % 10;
+
+  if (!goldfishBlockPatternCache.has(blockIndex)) {
+    const pattern = [false, false, false, false, false, true, true, true, true, true];
+    for (let index = pattern.length - 1; index > 0; index -= 1) {
+      const swapIndex = Math.floor(seededRandom((blockIndex + 1) * 97.13 + index * 13.7) * (index + 1));
+      [pattern[index], pattern[swapIndex]] = [pattern[swapIndex], pattern[index]];
+    }
+    goldfishBlockPatternCache.set(blockIndex, pattern);
+  }
+
+  return goldfishBlockPatternCache.get(blockIndex)[slotIndex];
+}
+
+function getGoldfishLineage(cycleIndex) {
+  const isDemekin = isDemekinGoldfishOrdinal(getGoldfishOrdinal(cycleIndex));
+  const parentSrc = isDemekin
+    ? pickSprite(DEMEKIN_SPRITES, cycleIndex * 31.17 + 7.3)
+    : pickSprite(STANDARD_GOLDFISH_SPRITES, cycleIndex * 31.17 + 7.3);
+
+  if (isDemekin) {
+    const becomesRare = seededRandom(cycleIndex * 53.41 + 2.6) < DEMEKIN_RARE_EVOLUTION_CHANCE;
+    return {
+      parentSrc,
+      result: becomesRare ? "rare-demekin" : "demekin",
+      resultSrc: becomesRare
+        ? pickSprite(DEMEKIN_RARE_EVOLUTION_SPRITES, cycleIndex * 67.03 + 4.1)
+        : parentSrc,
+      resultLabel: becomesRare ? "珍しい出目金" : "大きな出目金"
+    };
+  }
+
+  const becomesLargeGoldfish = seededRandom(cycleIndex * 43.19 + 9.2) < LARGE_GOLDFISH_CHANCE;
+  if (becomesLargeGoldfish) {
+    return {
+      parentSrc,
+      result: "large-goldfish",
+      resultSrc: pickSprite(STANDARD_GOLDFISH_SPRITES, cycleIndex * 61.7 + 4.8),
+      resultLabel: "大きな金魚"
+    };
+  }
+
+  return {
+    parentSrc,
+    result: "koi",
+    resultSrc: pickSprite(KOI_SPRITES, cycleIndex * 31.17 + 7.3),
+    resultLabel: "鯉"
+  };
+}
+
 function isFrogCycle(cycleIndex) {
   if (cycleIndex === 1) return true;
   if (cycleIndex < 4) return false;
   return seededRandom(cycleIndex * 41.73 + 5.9) < 0.16;
 }
 
+function getCycleLength(cycleIndex) {
+  return isFrogCycle(cycleIndex) ? FROG_SWIM_START_PROGRESS : GROWTH_CYCLE_LENGTH;
+}
+
+function getCycleStart(cycleIndex) {
+  let start = 0;
+  for (let index = 0; index < cycleIndex; index += 1) {
+    start += getCycleLength(index);
+  }
+  return start;
+}
+
 function getGrowthState(total) {
-  if (total === 0) {
-    return { cycleIndex: 0, progress: 0, type: "goldfish", complete: false };
+  let cycleIndex = 0;
+  let cycleStart = 0;
+  let cycleLength = getCycleLength(cycleIndex);
+
+  while (total > cycleStart + cycleLength) {
+    cycleStart += cycleLength;
+    cycleIndex += 1;
+    cycleLength = getCycleLength(cycleIndex);
   }
 
-  const remainder = total % GROWTH_CYCLE_LENGTH;
-  const complete = remainder === 0;
-  const cycleIndex = complete
-    ? total / GROWTH_CYCLE_LENGTH - 1
-    : Math.floor(total / GROWTH_CYCLE_LENGTH);
+  const progress = total - cycleStart;
+  const complete = total > 0 && progress === cycleLength;
   return {
     cycleIndex,
-    progress: complete ? GROWTH_CYCLE_LENGTH : remainder,
+    progress,
     type: isFrogCycle(cycleIndex) ? "frog" : "goldfish",
-    complete
+    complete,
+    cycleLength,
+    cycleStart
   };
 }
 
@@ -305,12 +511,12 @@ function getAnimalFrame(group, action, frame) {
 }
 
 function getHumanFrame(character, action, frame) {
-  return `${HUMAN_FRAME_ROOT}/${character}/${action}-${String(frame).padStart(2, "0")}.png`;
+  return `${HUMAN_FRAME_ROOT}/${character}/${action}-${String(frame).padStart(2, "0")}.png?v=${HUMAN_FRAME_CACHE_VERSION}`;
 }
 
-function createPondAnimal({ className, src, seed, scale = 1, frameAction = null }) {
+function createPondAnimal({ className, src, seed, positionIndex = seed, scale = 1, frameAction = null }) {
   const animal = document.createElement("img");
-  const { x, y } = seededPosition(seed);
+  const { x, y } = seededPosition(positionIndex);
   const facing = seededRandom(seed * 7.7 + 3.1) < 0.5 ? -1 : 1;
   animal.className = `goldfish ${className}`;
   animal.src = src;
@@ -331,35 +537,81 @@ function createPondAnimal({ className, src, seed, scale = 1, frameAction = null 
   return animal;
 }
 
-function collectRecentKoiCycles(completedCycles) {
+function collectRecentCompletedAquaticCycles(lastCompletedCycle) {
   const cycles = [];
-  for (let cycleIndex = completedCycles - 1; cycleIndex >= 0 && cycles.length < MAX_VISIBLE_KOI; cycleIndex -= 1) {
+  for (let cycleIndex = lastCompletedCycle; cycleIndex >= 0 && cycles.length < MAX_VISIBLE_KOI; cycleIndex -= 1) {
     if (!isFrogCycle(cycleIndex)) cycles.push(cycleIndex);
   }
   return cycles.reverse();
 }
 
+function renderGrowthShowcase(total, growth, previousTotal = null) {
+  let src;
+  let label;
+  let scale = 1;
+  let released = false;
+
+  if (growth.type === "goldfish") {
+    const lineage = getGoldfishLineage(growth.cycleIndex);
+    if (growth.complete && total > 0) {
+      src = lineage.resultSrc;
+      label = `${lineage.resultLabel}になって桶へ`;
+      scale = lineage.result === "koi" ? 1.1 : 1;
+      released = true;
+    } else {
+      src = lineage.parentSrc;
+      label = `金魚 ${growth.progress} / ${GROWTH_CYCLE_LENGTH}`;
+      scale = 0.52 + growth.progress * 0.065;
+    }
+  } else if (growth.progress >= FROG_SWIM_START_PROGRESS || growth.complete) {
+    src = getAnimalFrame("frog-swim", "swim-right", 1);
+    label = "カエルになって桶へ";
+    scale = 1;
+    released = growth.complete || (previousTotal !== null && previousTotal < FROG_SWIM_START_PROGRESS);
+  } else {
+    const frame = Math.max(1, Math.min(8, Math.ceil(Math.max(growth.progress, 1) * 8 / 9)));
+    src = `${ANIMAL_FRAME_ROOT}/metamorphosis/frame-${String(frame).padStart(2, "0")}.png`;
+    label = `おたまじゃくし ${growth.progress} / ${FROG_SWIM_START_PROGRESS}`;
+    scale = Math.max(0.8, TADPOLE_GROWTH_SCALES[Math.max(growth.progress - 1, 0)]);
+  }
+
+  elements.growthShowcaseAnimal.src = src;
+  elements.growthShowcaseAnimal.alt = label;
+  elements.growthShowcaseAnimal.style.setProperty("--showcase-scale", String(scale));
+  elements.growthShowcaseLabel.textContent = label;
+  elements.growthShowcase.setAttribute("aria-label", label);
+  elements.growthShowcase.classList.toggle("is-releasing", released);
+  elements.growthShowcase.classList.toggle("is-frog", growth.type === "frog");
+  const frogHasEnteredPond = growth.type === "frog" && growth.progress >= FROG_SWIM_START_PROGRESS;
+  elements.growthShowcase.classList.toggle("is-graduated", frogHasEnteredPond);
+  elements.growthShowcase.setAttribute("aria-hidden", String(frogHasEnteredPond));
+}
+
 function renderGrowth(total, previousTotal = null) {
-  const completedCycles = Math.floor(total / GROWTH_CYCLE_LENGTH);
   const growth = getGrowthState(total);
+  const lastCompletedCycle = growth.complete ? growth.cycleIndex : growth.cycleIndex - 1;
   const fragment = document.createDocumentFragment();
   elements.fishPond.replaceChildren();
-  const koiCycles = collectRecentKoiCycles(completedCycles);
+  const completedAquaticCycles = collectRecentCompletedAquaticCycles(lastCompletedCycle);
 
-  koiCycles.forEach((cycleIndex) => {
-    const koi = createPondAnimal({
-      className: "is-koi adult-koi",
-      src: pickSprite(KOI_SPRITES, cycleIndex * 31.17 + 7.3),
-      seed: cycleIndex * 13 + 101
+  completedAquaticCycles.forEach((cycleIndex) => {
+    const lineage = getGoldfishLineage(cycleIndex);
+    const result = createPondAnimal({
+      className: `is-${lineage.result} adult-result`,
+      src: lineage.resultSrc,
+      seed: cycleIndex * 13 + 101,
+      positionIndex: cycleIndex,
+      scale: lineage.result === "koi" ? 1 : lineage.result === "large-goldfish" ? 0.96 : 0.88
     });
-    koi.dataset.cycle = String(cycleIndex);
-    fragment.appendChild(koi);
+    result.dataset.cycle = String(cycleIndex);
+    result.dataset.result = lineage.result;
+    fragment.appendChild(result);
   });
 
-  const recentCycleStart = Math.max(0, completedCycles - 4);
-  for (let cycleIndex = recentCycleStart; cycleIndex < completedCycles; cycleIndex += 1) {
+  const recentCycleStart = Math.max(0, lastCompletedCycle - 3);
+  for (let cycleIndex = recentCycleStart; cycleIndex <= lastCompletedCycle; cycleIndex += 1) {
     if (!isFrogCycle(cycleIndex)) continue;
-    const matureAt = (cycleIndex + 1) * GROWTH_CYCLE_LENGTH;
+    const matureAt = getCycleStart(cycleIndex) + getCycleLength(cycleIndex);
     const escapeAt = matureAt + FROG_STAY_COUNTS;
     const crossedEscape = previousTotal !== null && previousTotal < escapeAt && total >= escapeAt;
     const isEscaping = total === escapeAt || crossedEscape;
@@ -370,6 +622,7 @@ function renderGrowth(total, previousTotal = null) {
       className: `growth-frog${isEscaping ? " is-escaping" : ""}`,
       src: getAnimalFrame("frog-swim", direction, 1),
       seed: cycleIndex * 17 + 701,
+      positionIndex: cycleIndex,
       frameAction: { group: "frog-swim", action: direction }
     });
     frog.dataset.cycle = String(cycleIndex);
@@ -381,12 +634,13 @@ function renderGrowth(total, previousTotal = null) {
 
   if (!growth.complete || total === 0) {
     if (growth.type === "goldfish") {
-      const scale = 0.48 + growth.progress * 0.07;
+      const lineage = getGoldfishLineage(growth.cycleIndex);
       const goldfish = createPondAnimal({
         className: "growth-active growth-goldfish",
-        src: pickSprite(GOLDFISH_SPRITES, growth.cycleIndex * 31.17 + 7.3),
+        src: lineage.parentSrc,
         seed: growth.cycleIndex * 19 + 1701,
-        scale
+        positionIndex: growth.cycleIndex,
+        scale: 0.4 + growth.progress * 0.06
       });
       goldfish.dataset.progress = String(growth.progress);
       fragment.appendChild(goldfish);
@@ -396,7 +650,8 @@ function renderGrowth(total, previousTotal = null) {
         className: "growth-active growth-tadpole",
         src: `${ANIMAL_FRAME_ROOT}/metamorphosis/frame-${String(frame).padStart(2, "0")}.png`,
         seed: growth.cycleIndex * 19 + 2701,
-        scale: TADPOLE_GROWTH_SCALES[growth.progress - 1]
+        positionIndex: growth.cycleIndex,
+        scale: TADPOLE_GROWTH_SCALES[Math.max(growth.progress - 1, 0)]
       });
       tadpole.dataset.progress = String(growth.progress);
       tadpole.dataset.metamorphosisFrame = String(frame);
@@ -407,6 +662,7 @@ function renderGrowth(total, previousTotal = null) {
         className: "growth-active growth-frog growth-frog-young",
         src: getAnimalFrame("frog-swim", direction, 1),
         seed: growth.cycleIndex * 19 + 2701,
+        positionIndex: growth.cycleIndex,
         frameAction: { group: "frog-swim", action: direction }
       });
       frog.dataset.progress = String(growth.progress);
@@ -423,6 +679,7 @@ function renderGrowth(total, previousTotal = null) {
   elements.fishPond.appendChild(fragment);
   elements.fishPond.dataset.growthType = growth.type;
   elements.fishPond.dataset.growthProgress = String(growth.progress);
+  renderGrowthShowcase(total, growth, previousTotal);
 }
 
 let pondFrame = 0;
@@ -488,12 +745,14 @@ function createVisitor(type, visit, phase = "idle") {
   visitor.dataset.side = visit.side;
   visitor.dataset.appearedAt = String(visit.appearedAt);
   visitor.dataset.leaveAt = String(visit.leaveAt);
+  visitor.dataset.layoutRole = type;
   visitor.dataset.frameOffset = type === "cat" ? "0" : "2";
   image.alt = "";
   image.draggable = false;
   visitor.appendChild(image);
   elements.visitorLayer.appendChild(visitor);
   setVisitorPhase(visitor, phase);
+  applyStageLayout(visitor, type);
 
   if (phase === "entering") {
     window.setTimeout(() => {
@@ -559,6 +818,37 @@ function clearVisitorsForTest(immediate = false) {
   Object.keys(VISITOR_CONFIG).forEach((type) => leaveVisitor(type, immediate));
 }
 
+window.getStageLayoutForTest = (stage = getActiveStage(), role) => getStageLayout(stage, role);
+window.updateStageLayoutForTest = (role, patch, stage = getActiveStage()) => updateStageLayout(role, patch, stage);
+window.resetStageLayoutForTest = (role, stage = getActiveStage()) => resetStageLayout(role, stage);
+window.getStageRouteForTest = (stage = getActiveStage(), role) => getStageRoute(stage, role);
+window.updateStageRouteForTest = (role, patch, stage = getActiveStage()) => updateStageRoute(role, patch, stage);
+window.resetStageRouteForTest = (role, stage = getActiveStage()) => resetStageRoute(role, stage);
+window.exportStageLayoutsForTest = () => JSON.stringify(stageLayouts, null, 2);
+window.importStageLayoutsForTest = (json) => {
+  const parsed = JSON.parse(json);
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new Error("配置データの形式が正しくありません。");
+  }
+  stageLayouts = parsed;
+  setStoredValue(STAGE_LAYOUT_STORAGE_KEY, JSON.stringify(stageLayouts));
+  applyActiveStageLayouts();
+};
+window.applyStageLayoutsForTest = applyActiveStageLayouts;
+window.showLayoutTargetForTest = (role, total = 0) => {
+  if (role === "cat" || role === "bird") {
+    forceVisitorForTest(role, total);
+    const visitor = elements.visitorLayer.querySelector(`[data-visitor-type="${role}"]`);
+    if (visitor) setVisitorPhase(visitor, "idle");
+    return;
+  }
+  forcePeopleForTest();
+  elements.peopleLayer.querySelectorAll(".human-character").forEach((person) => {
+    person.classList.remove("is-offscreen-left", "is-offscreen-right");
+    setHumanAction(person, person.dataset.layoutRole === "woman" ? "look-in" : "stand-reach");
+  });
+};
+
 const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 let visitorFrame = 0;
 window.setInterval(() => {
@@ -614,30 +904,62 @@ function randomDelay(minimum, maximum) {
 
 function setHumanAction(person, action) {
   person.dataset.action = action;
+  const isGirlPeeking = person.classList.contains("human-girl")
+    && (action === "stand-reach" || action === "stretch");
+  person.classList.toggle("is-facing-left", isGirlPeeking);
   person.querySelector("img").src = getHumanFrame(person.dataset.character, action, 1);
 }
 
 function createHumanCharacter(role, character, index) {
   const person = document.createElement("div");
   const image = document.createElement("img");
-  const entrySide = index % 2 === 0 ? "left" : "right";
+  const route = getStageRoute(getActiveStage(), role);
+  const hasEntryRoute = Number.isFinite(Number(route?.entryLeft)) && Number.isFinite(Number(route?.entryBottom));
+  const entrySide = hasEntryRoute
+    ? Number(route.entryLeft) < 50 ? "left" : "right"
+    : index % 2 === 0 ? "left" : "right";
   person.className = `human-character human-${role} is-offscreen-${entrySide}`;
   person.dataset.character = character;
-  person.dataset.action = entrySide === "left" ? "walk" : "walk-left";
+  person.dataset.layoutRole = role;
+  person.dataset.action = route?.walkDirection === "left"
+    ? "walk-left"
+    : route?.walkDirection === "right"
+      ? "walk"
+      : entrySide === "left" ? "walk" : "walk-left";
   person.dataset.frameOffset = String(index % 4);
   image.src = getHumanFrame(character, person.dataset.action, 1);
   image.alt = "";
   image.draggable = false;
   person.appendChild(image);
+  if (hasEntryRoute) {
+    person.classList.remove(`is-offscreen-${entrySide}`);
+    person.classList.add("has-manual-route");
+    person.style.left = `${route.entryLeft}%`;
+    person.style.bottom = `${route.entryBottom}%`;
+  }
   elements.peopleLayer.appendChild(person);
+  if (!hasEntryRoute) applyStageLayout(person, role);
 
   window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
-    person.classList.remove(`is-offscreen-${entrySide}`);
+    if (hasEntryRoute) {
+      person.style.removeProperty("left");
+      person.style.removeProperty("bottom");
+      applyStageLayout(person, role);
+      person.classList.add("is-route-entering");
+    } else {
+      person.classList.remove(`is-offscreen-${entrySide}`);
+    }
   }));
 
   setPeopleTimeout(() => {
     if (!person.isConnected) return;
     setHumanAction(person, role === "woman" ? "look-in" : "stand-reach");
+    // Only the reviewed day-boy sheet has dedicated, unwarped stretch frames so far.
+    if (person.dataset.character === "day-boy") {
+      setPeopleTimeout(() => {
+        if (person.isConnected) setHumanAction(person, "stretch");
+      }, 720);
+    }
   }, PEOPLE_ENTRY_MS + index * 180);
 }
 
@@ -671,6 +993,7 @@ function playCameraZoom(direction) {
 }
 
 function schedulePeopleVisit(delay = randomDelay(PEOPLE_REAPPEAR_MIN_MS, PEOPLE_REAPPEAR_MAX_MS)) {
+  if (!PEOPLE_ENABLED) return;
   if (peopleVisible || peopleScheduleTimeoutId !== null) return;
   peopleScheduleTimeoutId = window.setTimeout(() => {
     peopleScheduleTimeoutId = null;
@@ -679,6 +1002,7 @@ function schedulePeopleVisit(delay = randomDelay(PEOPLE_REAPPEAR_MIN_MS, PEOPLE_
 }
 
 function startPeopleVisit() {
+  if (!PEOPLE_ENABLED) return;
   if (peopleVisible) return;
   if (peopleScheduleTimeoutId !== null) {
     window.clearTimeout(peopleScheduleTimeoutId);
@@ -703,11 +1027,23 @@ function endPeopleVisit(immediate = false) {
   }
 
   elements.peopleLayer.querySelectorAll(".human-character").forEach((person, index) => {
-    const exitSide = Math.random() < 0.5 ? "left" : "right";
+    const route = getStageRoute(getActiveStage(), person.dataset.layoutRole);
+    const hasExitRoute = Number.isFinite(Number(route?.exitLeft)) && Number.isFinite(Number(route?.exitBottom));
+    const exitSide = hasExitRoute
+      ? Number(route.exitLeft) < 50 ? "left" : "right"
+      : Math.random() < 0.5 ? "left" : "right";
     const isWoman = person.classList.contains("human-woman");
     setHumanAction(person, exitSide === "left" && !isWoman ? "walk-left" : "walk");
     person.classList.toggle("is-facing-left", isWoman && exitSide === "left");
-    setPeopleTimeout(() => person.classList.add(`is-leaving-${exitSide}`), index * 160);
+    setPeopleTimeout(() => {
+      if (hasExitRoute) {
+        person.classList.add("is-route-leaving");
+        person.style.left = `${route.exitLeft}%`;
+        person.style.bottom = `${route.exitBottom}%`;
+      } else {
+        person.classList.add(`is-leaving-${exitSide}`);
+      }
+    }, index * 160);
   });
   playCameraZoom("in");
   setPeopleTimeout(() => {
@@ -738,6 +1074,16 @@ function renderStageLayers(stage) {
 }
 
 function syncPeopleScene(stage, originalBackground) {
+  if (!PEOPLE_ENABLED) {
+    peopleStage = stage;
+    peopleOriginalBackground = originalBackground;
+    clearPeopleActionTimeouts();
+    peopleVisible = false;
+    elements.peopleLayer.replaceChildren();
+    elements.gameScreen.classList.remove("has-people", "is-camera-zooming-out", "is-camera-zooming-in");
+    elements.scene.src = originalBackground;
+    return;
+  }
   const stageChanged = stage !== peopleStage;
   if (stageChanged && peopleVisible) endPeopleVisit(true);
   peopleStage = stage;
@@ -748,11 +1094,13 @@ function syncPeopleScene(stage, originalBackground) {
 }
 
 function forcePeopleForTest() {
+  if (!PEOPLE_ENABLED) return;
   if (peopleVisible) endPeopleVisit(true);
   startPeopleVisit();
 }
 
 function dismissPeopleForTest() {
+  if (!PEOPLE_ENABLED) return;
   endPeopleVisit();
 }
 
@@ -772,15 +1120,17 @@ function render(data, options = {}) {
   elements.gameScreen.style.setProperty("--scene-image", `url("${originalBackground}")`);
   renderBackgroundFireworks(stage);
   syncPeopleScene(stage, originalBackground);
+  applyActiveStageLayouts();
 
   const isFrogGrowth = growth.type === "frog";
+  const goldfishLineage = isFrogGrowth ? null : getGoldfishLineage(growth.cycleIndex);
   const growthTarget = isFrogGrowth ? FROG_SWIM_START_PROGRESS : GROWTH_CYCLE_LENGTH;
   const displayedProgress = Math.min(growth.progress, growthTarget);
   const displayedComplete = growth.complete || displayedProgress >= growthTarget;
   const growthName = isFrogGrowth
     ? displayedComplete ? "カエル成長完了" : growth.progress >= 6 ? "カエルへ成長中" : "おたまじゃくし"
     : "金魚";
-  const completeName = isFrogGrowth ? "カエル成長完了" : "鯉へ進化";
+  const completeName = isFrogGrowth ? "カエル成長完了" : `${goldfishLineage.resultLabel}になった`;
   const accessibleGrowthName = isFrogGrowth && growth.progress >= 6 ? "カエル" : growthName;
   elements.progressLabel.textContent = displayedComplete
     ? `${completeName} ${growthTarget} / ${growthTarget}`
@@ -813,7 +1163,7 @@ function showThankYou() {
 }
 
 function maybeCelebrate(total, force = false) {
-  const reachedMilestone = [...MILESTONES].reverse().find((milestone) => total >= milestone);
+  const reachedMilestone = getCelebrationMilestone(total);
   if (!reachedMilestone) return;
 
   const storageKey = `celebration_shown_${reachedMilestone}`;
