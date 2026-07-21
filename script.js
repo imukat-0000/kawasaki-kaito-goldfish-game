@@ -55,7 +55,7 @@ const VISITOR_CONFIG = {
   bird: { chance: 0.016, minStay: 4, maxStay: 8 }
 };
 const REQUEST_TIMEOUT_MS = 10000;
-const LIVE_COUNTER_REFRESH_INTERVAL_MS = 15000;
+const LIVE_COUNTER_REFRESH_INTERVAL_MS = 5000;
 const COUNTER_CACHE_KEY = "counter_last_success";
 const FIREWORK_PHASES = [
   { name: "launch", src: "assets/fireworks/firework-launch.png" },
