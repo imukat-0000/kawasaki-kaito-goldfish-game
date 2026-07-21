@@ -55,6 +55,7 @@ const VISITOR_CONFIG = {
   bird: { chance: 0.016, minStay: 4, maxStay: 8 }
 };
 const REQUEST_TIMEOUT_MS = 10000;
+const LIVE_COUNTER_REFRESH_INTERVAL_MS = 15000;
 const COUNTER_CACHE_KEY = "counter_last_success";
 const FIREWORK_PHASES = [
   { name: "launch", src: "assets/fireworks/firework-launch.png" },
@@ -1229,6 +1230,55 @@ async function fetchCounter(source) {
   }
 }
 
+let liveCounterRefreshInFlight = false;
+
+function canRefreshLiveCounter() {
+  return !document.body.classList.contains("test-page")
+    && !document.body.hasAttribute("data-disable-live-refresh")
+    && !window.__disableLiveRefresh
+    && !isLocalDemo()
+    && !isSamplePreview();
+}
+
+async function refreshLiveCounter() {
+  if (!canRefreshLiveCounter() || document.hidden || liveCounterRefreshInFlight) return;
+
+  liveCounterRefreshInFlight = true;
+  const previousCounter = readCachedCounter();
+
+  try {
+    // Refreshes never include src, so they only read the shared count.
+    const data = await fetchCounter();
+    if (data.demo) return;
+
+    const previousTotal = previousCounter?.total ?? null;
+    cacheCounter(data);
+    if (previousTotal === data.total) return;
+
+    render(data, { previousTotal });
+    if (previousTotal !== null
+      && getCelebrationMilestone(data.total) !== getCelebrationMilestone(previousTotal)) {
+      maybeCelebrate(data.total);
+    }
+    elements.status.classList.remove("is-error", "is-stale");
+    elements.status.classList.add("is-hidden");
+  } catch (error) {
+    // Keep the last visible state during a background refresh failure.
+    console.warn("Live counter refresh failed", error);
+  } finally {
+    liveCounterRefreshInFlight = false;
+  }
+}
+
+function startLiveCounterRefresh() {
+  if (!canRefreshLiveCounter()) return;
+
+  window.setInterval(refreshLiveCounter, LIVE_COUNTER_REFRESH_INTERVAL_MS);
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) refreshLiveCounter();
+  });
+}
+
 async function initialize() {
   const source = getValidSource();
   const dailyKey = source ? `${getJstDateKey()}_${source}` : null;
@@ -1279,4 +1329,4 @@ async function initialize() {
   }
 }
 
-initialize();
+initialize().finally(startLiveCounterRefresh);

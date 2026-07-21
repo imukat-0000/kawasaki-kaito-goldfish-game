@@ -10,6 +10,7 @@
   <script>
     const testParams = new URLSearchParams(window.location.search);
     const testMode = testParams.get("mode") || "success";
+    window.__disableLiveRefresh = testMode !== "live-refresh";
 
     const dateParts = new Intl.DateTimeFormat("en-CA", {
       timeZone: "Asia/Tokyo",
@@ -125,6 +126,6 @@
     </section>
     <footer class="campaign-footer"><p>browser test</p><p class="source-note" id="sourceNote">通常アクセス</p></footer>
   </main>
-  <script src="../script.js?v=20260721-all-child-anchors10"></script>
+  <script src="../script.js?v=20260721-live-refresh1"></script>
 </body>
 </html>
