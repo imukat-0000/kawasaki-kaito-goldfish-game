@@ -12,13 +12,13 @@ GitHub Pagesで公開できる、Vanilla HTML/CSS/JSの静的サイトです。
 
 **Apps ScriptのWeb App URLを `script.js` 内の `API_URL` に設定するだけで動きます。**
 
-公開後はNFCタグに次のURLを設定してください。
+NFCタグには、本体ホームページの次のURLを設定してください。
 
 ```text
-https://example.github.io/project/?src=nfc
+https://kaitokawasaki.com/?visit=nfc
 ```
 
-`?src=nfc` を含むURLを開くたびに1回加算します。同じ端末で何度タッチしても、その都度カウントされます。`src` が無い通常アクセスは現在値の取得のみです。
+ホームページは `?visit=nfc` を受け取ると、ゲームのカウンターAPIへ `src=nfc` を送ります。同じ端末で何度タッチしても、その都度カウントされます。ゲーム画面自体では `?src=nfc` の直接アクセスにも対応し、`src` が無い通常アクセスは現在値の取得のみです。
 
 公開ページを開いたままにした端末は、5秒ごとに共有カウントを再取得して自動更新します。この再取得には `src` を含めないため、カウントは増えません。テストページ、`sample`、ローカルの `demo` 表示では自動更新しません。
 
@@ -43,13 +43,13 @@ http://localhost:8000/?demo=1000000
 GitHub Pagesなど公開環境でステージ見本を共有する場合は `?sample=節目` を使用します。`sample` は `0 / 1 / 10 / 30 / 50 / 70 / 90 / 100` のみ有効で、カウンターAPIへの接続やアクセス数の加算は行いません。
 
 ```text
-https://example.github.io/project/?sample=100
+https://imukat-0000.github.io/kawasaki-kaito-goldfish-game/?sample=100
 ```
 
 ステージ変更時の節目演出も確認する場合は `effect=1` を追加します。この共有用演出はページを開くたびに再生されます。
 
 ```text
-https://example.github.io/project/?sample=1&effect=1
+https://imukat-0000.github.io/kawasaki-kaito-goldfish-game/?sample=1&effect=1
 ```
 
 通信障害の回帰確認には `tests/browser-harness.html` を使用します。`mode` は `success`、`failure`、`failure-cache`、`invalid`、`timeout-cache`、`storage-error` に対応し、`reset=1` で試験用の保存値を初期化します。
