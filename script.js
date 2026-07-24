@@ -2,7 +2,7 @@
  * Apps ScriptをWebアプリとしてデプロイ後、下記API_URLを書き換えるだけで動きます。
  * 例: const API_URL = "https://script.google.com/macros/s/XXXXX/exec";
  */
-const API_URL = "https://script.google.com/macros/s/AKfycbwJKRyeAw9jiC-jmvJ2fIgRdmdHpu1CVCu61cEC9OojBjMtszdU4fdj99eBIPz0ogwh/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbz0G1_owFGE0fv_-P26afkA2vE4_0G9m726KD9U4VnpC7CI2-NvnkoCt_jrka8mxtBU/exec";
 
 const MILESTONES = [10, 30, 50, 70, 90, 100];
 const CELEBRATION_MILESTONES = [1, ...MILESTONES];
